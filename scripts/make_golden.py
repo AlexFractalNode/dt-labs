@@ -311,14 +311,27 @@ def _entropy_bits(counts, w):
     return h
 
 
+def _gini(counts, w):
+    sq = 0.0
+    for c in counts:
+        sq += float(c) * float(c)
+    return 1.0 - sq / (w * w)
+
+
 def proxy_improvement(sum_left, sum_right, criterion):
-    """sklearn's proxy for the split choice (weighted class sums of both children)."""
+    """sklearn 1.5.0's generic proxy -wR*I_R - wL*I_L for both criteria (Spec 3.3).
+
+    Child impurities in sklearn's evaluation order: gini 1 - sum(c_k^2) / (w*w),
+    entropy -sum (c_k/w) * log2(c_k/w) with log2 = ln / ln 2.
+    """
     wl, wr = float(np.sum(sum_left)), float(np.sum(sum_right))
     if criterion == "gini":
-        return float(np.sum(sum_left * sum_left)) / wl + float(np.sum(sum_right * sum_right)) / wr
-    if criterion == "entropy":
-        return -wl * _entropy_bits(sum_left, wl) - wr * _entropy_bits(sum_right, wr)
-    raise ValueError(f"unsupported criterion {criterion}")
+        imp_l, imp_r = _gini(sum_left, wl), _gini(sum_right, wr)
+    elif criterion == "entropy":
+        imp_l, imp_r = _entropy_bits(sum_left, wl), _entropy_bits(sum_right, wr)
+    else:
+        raise ValueError(f"unsupported criterion {criterion}")
+    return -wr * imp_r - wl * imp_l
 
 
 def node_candidates(X32, y, w, rows, n_classes, criterion, min_samples_leaf):
