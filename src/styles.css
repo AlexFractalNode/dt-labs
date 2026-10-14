@@ -1,0 +1,59 @@
+/* Design tokens: calm academic palette (paper / ink), light and dark. */
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --text: #1b2230;
+  --text-muted: #4f596b;
+  --border: #c9ced8;
+  --grid: #e6e8ee;
+  --axis: #5b6577;
+  --accent: #2b5c9e;
+  --focus: #b4530a;
+  --error: #b3261e;
+  --error-bg: #fdecea;
+
+  /* Plot ink for data points (>= 3:1 on --bg). */
+  --c-points: #111827;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181f;
+    --surface: #1c222c;
+    --text: #e8edf5;
+    --text-muted: #aab3c2;
+    --border: #3a4352;
+    --grid: #262d39;
+    --axis: #8d97a8;
+    --accent: #7fb0ee;
+    --focus: #f5b062;
+    --error: #f2877f;
+    --error-bg: #3a1f1d;
+
+    --c-points: #ffffff;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main {
+  padding: 1rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
