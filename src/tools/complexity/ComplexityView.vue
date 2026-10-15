@@ -29,8 +29,7 @@ import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
 import RefBadge from '../../ui/RefBadge.vue'
 import RegionLayer from '../../ui/RegionLayer.vue'
-import ScenarioBar from '../../ui/ScenarioBar.vue'
-import ScenarioNote from '../../ui/ScenarioNote.vue'
+import ScenarioArea from '../../ui/ScenarioArea.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import type { DiagramNode } from '../../ui/treeLayout'
@@ -391,15 +390,7 @@ const modelFailed = computed(() => shown.value === null)
 
     <UrlNotice :problems="noticeProblems" />
 
-    <div class="scenario-area">
-      <ScenarioBar tool="complexity" :active-id="scenario.active.value?.id ?? null" @apply="scenario.apply" />
-      <ScenarioNote
-        :scenario="scenario.active.value"
-        :deviated="scenario.deviated.value"
-        @close="scenario.dismiss"
-        @restore="scenario.restore"
-      />
-    </div>
+    <ScenarioArea tool="complexity" :scenario="scenario" />
 
     <div class="layout">
       <div class="side">

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n, type MessageKey } from '../i18n'
 import { scenariosFor, type Scenario, type ToolId } from '../tools/scenarios'
 
@@ -8,12 +8,23 @@ const props = defineProps<{ tool: ToolId; activeId: string | null }>()
 const emit = defineEmits<{ apply: [scenario: Scenario] }>()
 const { t } = useI18n()
 
+const root = ref<HTMLElement | null>(null)
 const list = computed(() => scenariosFor(props.tool))
 const key = (s: Scenario, part: 'title' | 'short') => `scenario.${s.id}.${part}` as MessageKey
+
+/** Moves the focus to the card of `id` (or the first card), e.g. after the note that held it was closed. */
+function focusCard(id: string | null): void {
+  const cards = root.value?.querySelectorAll<HTMLButtonElement>('button[data-scenario]')
+  if (!cards) return
+  const target = Array.from(cards).find((c) => c.dataset.scenario === id) ?? cards[0]
+  target?.focus()
+}
+defineExpose({ focusCard })
 </script>
 
 <template>
   <div
+    ref="root"
     class="scenario-bar"
     role="group"
     :aria-label="t('scenario.barLabel')"

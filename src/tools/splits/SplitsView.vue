@@ -18,8 +18,7 @@ import BarList from '../../ui/BarList.vue'
 import Formula from '../../ui/Formula.vue'
 import { classColor } from '../../ui/classStyle'
 import RefBadge from '../../ui/RefBadge.vue'
-import ScenarioBar from '../../ui/ScenarioBar.vue'
-import ScenarioNote from '../../ui/ScenarioNote.vue'
+import ScenarioArea from '../../ui/ScenarioArea.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import type { DiagramNode } from '../../ui/treeLayout'
@@ -355,15 +354,7 @@ const formatShare = (v: number) => fmt(lang.value, v, 3)
 
     <UrlNotice :problems="noticeProblems" />
 
-    <div class="scenario-area">
-      <ScenarioBar tool="splits" :active-id="scenario.active.value?.id ?? null" @apply="scenario.apply" />
-      <ScenarioNote
-        :scenario="scenario.active.value"
-        :deviated="scenario.deviated.value"
-        @close="scenario.dismiss"
-        @restore="scenario.restore"
-      />
-    </div>
+    <ScenarioArea tool="splits" :scenario="scenario" />
 
     <div class="controls">
       <fieldset class="group">

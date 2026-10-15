@@ -18,8 +18,7 @@ import GridLayer from '../../ui/GridLayer.vue'
 import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
 import RefBadge from '../../ui/RefBadge.vue'
-import ScenarioBar from '../../ui/ScenarioBar.vue'
-import ScenarioNote from '../../ui/ScenarioNote.vue'
+import ScenarioArea from '../../ui/ScenarioArea.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import { createJobClient } from '../../worker/client'
 import type { ForestResult } from '../../worker/jobs'
@@ -307,15 +306,7 @@ const noticeProblems = computed(() => [...new Set([...urlProblems.value, ...scen
 
     <UrlNotice :problems="noticeProblems" />
 
-    <div class="scenario-area">
-      <ScenarioBar tool="forest" :active-id="scenario.active.value?.id ?? null" @apply="scenario.apply" />
-      <ScenarioNote
-        :scenario="scenario.active.value"
-        :deviated="scenario.deviated.value"
-        @close="scenario.dismiss"
-        @restore="scenario.restore"
-      />
-    </div>
+    <ScenarioArea tool="forest" :scenario="scenario" />
 
     <div class="layout">
       <div class="side">

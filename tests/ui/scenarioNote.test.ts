@@ -1,11 +1,15 @@
 // @vitest-environment happy-dom
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+import { computed, shallowRef } from 'vue'
 import { mount } from '@vue/test-utils'
 import ScenarioNote from '../../src/ui/ScenarioNote.vue'
 import ScenarioBar from '../../src/ui/ScenarioBar.vue'
+import ScenarioArea from '../../src/ui/ScenarioArea.vue'
+import type { ScenarioApi } from '../../src/tools/useScenario'
 import { scenarioById, type Scenario } from '../../src/tools/scenarios'
 import { setLang } from '../../src/i18n'
 import de from '../../src/i18n/de'
+import en from '../../src/i18n/en'
 
 setLang('de')
 const s1 = scenarioById('s1') as Scenario
@@ -77,6 +81,61 @@ describe('ScenarioNote', () => {
     expect(w.find('[data-verify-unit="scenario-note"]').attributes('hidden')).toBeUndefined()
     await w.setProps({ deviated: true })
     expect(live.text()).toBe(`${de.scenario.s1.title} ${de.scenario.changed}`)
+  })
+
+  it('keeps the announcement on a language toggle and re-announces on a new scenario', async () => {
+    setLang('de')
+    const w = mount(ScenarioNote, { props: { scenario: s1, deviated: false } })
+    const live = w.find('[role="status"]')
+    expect(live.text()).toBe(de.scenario.s1.title)
+    setLang('en')
+    await w.vm.$nextTick()
+    expect(w.find('h3').text()).toBe(en.scenario.s1.title) // the box follows the language
+    expect(live.text()).toBe(de.scenario.s1.title) // the live region does not announce again
+    await w.setProps({ scenario: scenarioById('s2') as Scenario })
+    expect(live.text()).toBe(en.scenario.s2.title)
+    setLang('de')
+  })
+})
+
+describe('ScenarioArea focus', () => {
+  function fakeApi(deviatedNow: boolean) {
+    const active = shallowRef<Scenario | null>(scenarioById('s2') as Scenario)
+    const deviated = shallowRef(deviatedNow)
+    const api: ScenarioApi = {
+      active,
+      deviated: computed(() => active.value !== null && deviated.value),
+      problems: shallowRef([]),
+      apply: vi.fn(),
+      dismiss: vi.fn(() => {
+        active.value = null
+      }),
+      restore: vi.fn(() => {
+        deviated.value = false
+      }),
+    }
+    return api
+  }
+
+  it('moves the focus from the closed note to the card of that scenario', async () => {
+    const w = mount(ScenarioArea, { props: { tool: 'splits', scenario: fakeApi(false) }, attachTo: document.body })
+    ;(w.find('[data-action="close"]').element as HTMLElement).focus()
+    await w.find('[data-action="close"]').trigger('click')
+    await w.vm.$nextTick()
+    expect(document.activeElement).toBe(w.find('button[data-scenario="s2"]').element)
+    w.unmount()
+  })
+
+  it('moves the focus to the note title after restore removed the button', async () => {
+    const w = mount(ScenarioArea, { props: { tool: 'splits', scenario: fakeApi(true) }, attachTo: document.body })
+    ;(w.find('[data-action="restore"]').element as HTMLElement).focus()
+    await w.find('[data-action="restore"]').trigger('click')
+    await w.vm.$nextTick()
+    expect(w.find('[data-action="restore"]').exists()).toBe(false)
+    const title = w.find('h3.note-title')
+    expect(title.attributes('tabindex')).toBe('-1')
+    expect(document.activeElement).toBe(title.element)
+    w.unmount()
   })
 })
 
