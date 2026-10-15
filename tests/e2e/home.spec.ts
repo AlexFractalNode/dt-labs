@@ -20,7 +20,7 @@ test('home lists three tools', async ({ page }) => {
   const cards = page.locator(`${home} [data-tool]`)
   await expect(cards).toHaveCount(3)
   for (const route of ['splits', 'complexity', 'forest']) {
-    await expect(page.locator(`${home} [data-tool="${route}"] a[href="#/${route}"]`)).toHaveCount(1)
+    await expect(page.locator(`${home} [data-tool="${route}"] a[href^="#/${route}"]`)).toHaveCount(1)
   }
   await expect(page.locator(`${home} [data-tool="splits"]`)).toContainText('Notebook Zelle 99–128')
 

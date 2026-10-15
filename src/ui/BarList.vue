@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from '../i18n'
 
-/** Horizontal bars; the width is `value / max` (default max 1, e.g. importances that sum to 1). */
-withDefaults(defineProps<{ items: { label: string; value: number }[]; max?: number }>(), { max: 1 })
+/** Horizontal bars; the width is `value / max` (default max 1, e.g. importances that sum to 1). `format` renders the value text (default: 3 decimals). */
+withDefaults(
+  defineProps<{ items: { label: string; value: number }[]; max?: number; format?: (v: number) => string }>(),
+  { max: 1, format: (v: number) => v.toFixed(3) },
+)
 const { t } = useI18n()
 
 function pct(value: number, max: number): string {
@@ -25,7 +28,7 @@ function pct(value: number, max: number): string {
         <span class="track" aria-hidden="true">
           <span class="bar" :data-bar="i" :style="{ width: pct(it.value, max) }" />
         </span>
-        <span class="value">{{ it.value.toFixed(3) }}</span>
+        <span class="value">{{ format(it.value) }}</span>
       </li>
     </ul>
   </div>

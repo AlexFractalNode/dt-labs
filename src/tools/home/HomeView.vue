@@ -12,6 +12,8 @@ interface ToolCard {
   goal: MessageKey
   chapter: string
   code: string
+  /** Query of the card link (e.g. the preset the tool opens with). */
+  params?: Record<string, string>
 }
 
 // Chapter and notebook-cell references follow the learning goals in Spec §4 (zero-based cell numbers).
@@ -23,6 +25,7 @@ const TOOLS: ToolCard[] = [
     goal: 'home.tool.splits.goal',
     chapter: '3–5, 8.4',
     code: '99–128',
+    params: { preset: 'eight' },
   },
   {
     route: 'complexity',
@@ -65,7 +68,7 @@ const TOOLS: ToolCard[] = [
           </p>
           <RefBadge :chapter="tool.chapter" :code="tool.code" />
           <div class="card-actions">
-            <a class="open" :href="buildHash(tool.route)">{{ t('home.open', { tool: t(tool.name) }) }}</a>
+            <a class="open" :href="buildHash(tool.route, tool.params)">{{ t('home.open', { tool: t(tool.name) }) }}</a>
           </div>
         </li>
       </ul>

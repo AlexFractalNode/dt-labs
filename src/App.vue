@@ -5,6 +5,7 @@ import { useI18n, toggleLang, type MessageKey } from './i18n'
 import { dismissNotice, notify, useNotices } from './notify'
 import { buildHash, urlProblems, type Route } from './urlState'
 import HomeView from './tools/home/HomeView.vue'
+import SplitsView from './tools/splits/SplitsView.vue'
 
 const { lang, t } = useI18n()
 const current = useRoute()
@@ -76,8 +77,9 @@ watch(
       </p>
     </section>
     <main>
-      <!-- The tool views are added task by task; until then every route shows the home view. -->
-      <HomeView />
+      <!-- The tool views are added task by task; until then the other routes show the home view. -->
+      <SplitsView v-if="route === 'splits'" />
+      <HomeView v-else />
     </main>
   </div>
 </template>
