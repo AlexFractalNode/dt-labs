@@ -143,13 +143,30 @@ test('table editing: identical features with different classes leave no admissib
   await expect(cands).toContainText('keine zulässige Frage')
 })
 
-test('adding a row copies the last row; a changed table drops choices that no longer exist', async ({ page }) => {
+test('adding a row copies the last row and the address no longer claims a preset tree', async ({ page }) => {
   await open(page, 'preset=eight&grow=auto')
   await expect(page.locator(unit('tree'))).toHaveAttribute('data-verify-count', '5', T)
   await page.locator(`${unit('splits-data')} button[data-action="add-row"]`).click()
   await expect(page.locator(unit('splits-data'))).toHaveAttribute('data-verify-count', '9')
-  // the edited table no longer matches the preset, so the address does not claim a finished preset tree
+  await expect(page.locator(`${unit('splits-data')} input[data-row="8"][data-col="0"]`)).toHaveValue('4')
+  // edited data is not a preset any more
   await expect(page).not.toHaveURL(/grow=auto/)
+})
+
+test('editing a cell drops a choice that no longer exists and says so', async ({ page }) => {
+  await open(page, 'preset=eight&grow=auto')
+  await expect(page.locator(unit('tree'))).toHaveAttribute('data-verify-count', '5', T)
+  const data = page.locator(unit('splits-data'))
+  await expect(data).toHaveAttribute('data-verify-dropped', '0')
+  await expect(page.locator('[data-note="dropped"]')).toHaveCount(0)
+  // Case 5 (row index 4) gets a2 = 3: node R now only has a2 in {3, 4}, so the applied question a2 <= 2,5 is gone.
+  const cell = page.locator(`${unit('splits-data')} input[data-row="4"][data-col="1"]`)
+  await cell.fill('3')
+  await cell.blur()
+  await expect(data).toHaveAttribute('data-verify-dropped', '1', T)
+  await expect(page.locator('[data-note="dropped"]')).toBeVisible()
+  await expect(page.locator(unit('tree'))).toHaveAttribute('data-verify-count', '3')
+  await expect(data).toHaveAttribute('data-verify-state', 'ready')
 })
 
 test('weather preset explains Quinlan original and the course file', async ({ page }) => {
