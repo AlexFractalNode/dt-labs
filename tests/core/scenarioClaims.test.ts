@@ -275,6 +275,7 @@ describe('forest scenarios', () => {
       const m = measureVariance({ name: 'moons', n: state.n, noise: state.noise }, xStar, { ...params, ...change }, 40)
       expect(m.rho as number, JSON.stringify(change)).toBeLessThan(0.999)
       expect(m.varMeasured, JSON.stringify(change)).toBeLessThan(m.sigma2)
+      expect(m.varMeasured, JSON.stringify(change)).toBeLessThan(v.varMeasured) // below the scenario's own forest variance
     }
   })
 })
