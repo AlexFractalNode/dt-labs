@@ -9,6 +9,8 @@ Run via `npm run golden`. Three files:
   internal node and lists the nodes whose maximum is attained more than once (sklearn breaks those
   ties by a random feature order, so the TypeScript tree is compared there through a tie oracle).
 - cv.json: StratifiedKFold test folds, cross_validate and validation_curve scores.
+- forest.json: a RandomForestClassifier with its per-tree bootstrap counts, full `tree_` arrays and tie
+  nodes (exact rebuild), plus the OOB score spread over 20 seeds for max_features=1 (statistical band).
 """
 import json
 import math
@@ -17,6 +19,7 @@ from pathlib import Path
 import numpy as np
 import sklearn
 from sklearn.datasets import make_circles, make_moons
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble._forest import _generate_sample_indices
 from sklearn.model_selection import StratifiedKFold, cross_validate, validation_curve
 from sklearn.tree import DecisionTreeClassifier
@@ -518,9 +521,65 @@ def build_cv():
     }
 
 
+# ---------------------------------------------------------------- random forest (Spec 3.5)
+
+def forest_data():
+    return make_moons(200, noise=0.3, random_state=3)
+
+
+def forest_params(n_estimators, max_features, bootstrap, seed):
+    """ForestParams of the TypeScript core; the tree part is tree_params() without ccpAlpha."""
+    tree = tree_params()
+    del tree["ccpAlpha"]
+    return {"nEstimators": n_estimators, "maxFeatures": max_features, "bootstrap": bootstrap,
+            "tree": tree, "seed": seed}
+
+
+def bootstrap_counts(est, n):
+    """Per-row draw counts of one forest tree (sklearn passes them to the tree as sample_weight)."""
+    return np.bincount(_generate_sample_indices(est.random_state, n, n), minlength=n)
+
+
+def build_forest():
+    X, y = forest_data()
+    n = len(y)
+    params = forest_params(25, None, True, 7)
+    rf = RandomForestClassifier(n_estimators=25, max_features=None, bootstrap=True, oob_score=True,
+                                random_state=7).fit(X, y)
+    counts, trees = [], []
+    for est in rf.estimators_:
+        c = bootstrap_counts(est, n)
+        t = est.tree_
+        counts.append(c)
+        trees.append({
+            "childrenLeft": t.children_left, "childrenRight": t.children_right, "feature": t.feature,
+            "threshold": t.threshold, "nNodeSamples": t.n_node_samples,
+            "weightedNNodeSamples": t.weighted_n_node_samples, "value": t.value[:, 0, :],
+            "impurity": t.impurity,
+            "tieNodes": find_tie_nodes(X, y, c, t, "gini", min_samples_leaf=params["tree"]["minSamplesLeaf"]),
+        })
+    grid = make_grid(X)
+
+    stat_params = forest_params(50, 1, True, 0)
+    seeds = list(range(20))
+    scores = np.array([
+        RandomForestClassifier(n_estimators=50, max_features=1, bootstrap=True, oob_score=True,
+                               random_state=s).fit(X, y).oob_score_
+        for s in seeds])
+    return {
+        "meta": META,
+        "exact": {"X": X, "y": y, "nClasses": int(rf.n_classes_), "params": params,
+                  "bootstrapCounts": counts, "trees": trees, "grid": grid,
+                  "gridProba": rf.predict_proba(grid), "oobScore": rf.oob_score_},
+        "stat": {"X": X, "y": y, "params": stat_params, "oobMean": scores.mean(), "oobSd": scores.std(),
+                 "seeds": len(seeds)},
+    }
+
+
 def build_all():
     return {name: jsonable(obj) for name, obj in
-            (("textbook", build_textbook()), ("cart", build_cart()), ("cv", build_cv()))}
+            (("textbook", build_textbook()), ("cart", build_cart()), ("cv", build_cv()),
+             ("forest", build_forest()))}
 
 
 if __name__ == "__main__":

@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_validate, validation_curve
 from sklearn.tree import DecisionTreeClassifier
 
@@ -14,7 +15,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import make_golden  # noqa: E402
 
 GOLDEN = ROOT / "tests" / "golden"
-NAMES = ["textbook", "cart", "cv"]
+NAMES = ["textbook", "cart", "cv", "forest"]
 
 
 @pytest.fixture(scope="module")
@@ -195,3 +196,40 @@ def test_cv_seed_invariant():
                                        param_name="max_depth", param_range=[1, 2, 3, 4], cv=5)
         assert train.tolist() == vc["train"], rs
         assert test.tolist() == vc["test"], rs
+
+
+def test_forest_bootstrap_counts_reproduce_estimators():
+    """A plain tree fitted with a forest tree's bootstrap counts as sample_weight is that tree."""
+    X, y = make_golden.forest_data()
+    rf = RandomForestClassifier(n_estimators=25, max_features=None, bootstrap=True, oob_score=True,
+                                random_state=7).fit(X, y)
+    g = load("forest")["exact"]
+    assert len(g["bootstrapCounts"]) == len(rf.estimators_) == 25
+    for i, est in enumerate(rf.estimators_):
+        counts = make_golden.bootstrap_counts(est, len(y))
+        assert counts.tolist() == g["bootstrapCounts"][i], i
+        assert counts.sum() == len(y), i
+        ref = DecisionTreeClassifier(random_state=est.random_state).fit(X, y, sample_weight=counts).tree_
+        t = est.tree_
+        assert make_golden.sk_splits(ref) == make_golden.sk_splits(t), i
+        assert np.array_equal(ref.n_node_samples, t.n_node_samples), i
+        assert np.array_equal(ref.value, t.value), i
+
+
+def test_forest_golden_shape():
+    g = load("forest")
+    ex, st = g["exact"], g["stat"]
+    assert ex["params"]["nEstimators"] == 25 and ex["params"]["maxFeatures"] is None
+    assert "ccpAlpha" not in ex["params"]["tree"]
+    assert len(ex["X"]) == len(ex["y"]) == 200
+    assert len(ex["grid"]) == len(ex["gridProba"])
+    # every row is out of bag for at least one of the 25 trees, so sklearn's OOB score is exact
+    covered = np.zeros(200, bool)
+    for c in ex["bootstrapCounts"]:
+        covered |= np.asarray(c) == 0
+    assert covered.all()
+    for t in ex["trees"]:
+        assert t["childrenLeft"][0] != -1
+        assert all(t["childrenLeft"][node] != -1 for node in t["tieNodes"])
+    assert st["seeds"] == 20 and st["params"]["maxFeatures"] == 1 and st["params"]["nEstimators"] == 50
+    assert 0.5 < st["oobMean"] < 1 and st["oobSd"] >= 0
