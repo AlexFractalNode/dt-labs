@@ -48,7 +48,7 @@ const en: Messages<typeof de> = {
     roadmap: {
       r1: {
         name: 'Regression staircase',
-        desc: 'Regression trees as step functions: splits by variance reduction and the repaired tree with cross-validation (TreeCV).',
+        desc: 'Regression trees as step functions: splits by variance reduction and the tree with corrected cross-validation (TreeCV).',
       },
       r2: {
         name: 'Information calculator',
@@ -143,7 +143,7 @@ const en: Messages<typeof de> = {
       title: 'Overfitting made visible',
       short: 'An unbounded tree memorises the training data.',
       see: 'Without a depth limit the tree grows to 30 leaves and hits every training point (100 %). In 5-fold cross-validation it reaches only about 0.835.',
-      watch: 'The validation curve peaks at depth 3, at about 0.880. At every other depth it is lower, while the training accuracy keeps rising with depth.',
+      watch: 'The validation curve peaks at depth 3, at about 0.880. At every other depth it is lower, while the training accuracy rises to 100 % with depth.',
       next: 'Drag the depth yourself and watch the gap between training and cross-validation. The next scenario limits the depth to 3.',
     },
     c2: {
@@ -156,15 +156,15 @@ const en: Messages<typeof de> = {
     c3: {
       title: 'Pruning afterwards',
       short: 'A subtree with two leaves beats the full tree.',
-      see: 'When pruning, the size of the tree counts as well as its accuracy. The critical values of α are about 0.41 and 0.55. At α = 0.45 the subtree with 2 leaves wins, even though it misclassifies case 5.',
+      see: 'When pruning, the size of the tree counts as well as its accuracy. The critical values of α are about 0.41 and 0.55. At α = 0.45 the subtree with 2 leaves wins, even though it misclassifies a class 0 point at (3, 2).',
       watch: 'The larger α is, the more each extra leaf costs. Between the critical values the tree stays the same; it changes only when α passes one of them.',
       next: 'Set α to 0.2 first, then to 0.6. At 0.2 more of the tree stays, at 0.6 only a single leaf is left.',
     },
     f1: {
       title: 'One tree against many',
-      short: 'Many random trees are wrong less often than one.',
+      short: 'Here, 100 random trees err less often than one.',
       see: 'In the gallery single trees look jagged, while the picture of the whole forest is smoother. The OOB accuracy rises from about 0.82 with one tree to about 0.89 with 100 trees.',
-      watch: 'From about 20 trees on, the OOB curve moves by at most 0.02. Further trees hardly improve the result after that.',
+      watch: 'From about 20 trees on, the OOB curve moves by at most 0.02. In this example, further trees hardly improve the result after that.',
       next: 'Switch bootstrap off or set max_features to 2 and watch how the gallery and the OOB curve change.',
     },
     f2: {
@@ -172,7 +172,7 @@ const en: Messages<typeof de> = {
       short: 'The same three trees give two different answers.',
       see: 'Three trees give class 1 the probabilities 0.51, 0.51 and 0.01. Two of them vote for class 1, so the hard vote says class 1. The mean is only 0.343, so averaging says class 0.',
       watch: 'One very confident tree can outweigh two narrow ones when probabilities are averaged. Scikit-learn averages the probabilities, not the votes.',
-      next: 'Move x* in the scatter plot: the example is replaced by the real trees of the forest, and you can see whether voting and averaging agree there.',
+      next: 'Click into the forest regions to set x*: the example is replaced by the real trees of the forest, and you can see whether voting and averaging agree there.',
     },
     f3: {
       title: 'No randomness, no forest',
@@ -246,13 +246,13 @@ const en: Messages<typeof de> = {
         dataset: 'Chooses the shape of the data: XOR, moons, circles or diagonal.',
         n: 'Number of generated points (2 to 1000).',
         noise: 'How strongly the points scatter around their ideal position (0 to 1).',
-        seed: 'Starting value of the randomness (0 to 9999); it controls the data and the bootstrap draws.',
+        seed: 'Starting value of the randomness (0 to 9999); it controls the data, the bootstrap draws and, with max_features 1, also which feature is picked.',
         B: 'Number of trees (1 to 300); more trees smooth the picture but eventually add little.',
         maxFeatures: 'How many features a split may look at: 1 or 2 (all). Fewer features make the trees more different.',
         bootstrap: 'On: each tree learns from a draw with replacement. Off: all trees see all of the data.',
         maxDepth: 'Highest depth of each single tree (1 to 20 or unbounded).',
         minSamplesLeaf: 'Minimum number of cases per leaf in every tree (1 to 50).',
-        xStar: 'Click into the forest plot to set the point x* that the vote and the variance measurement look at.',
+        xStar: 'Click into the forest regions to set the point x* that the vote and the variance measurement look at.',
         measure: 'Measures at x*, with fresh samples, how strongly the trees and the forest vary; with a large B this can take a while, and you can cancel.',
       },
     },

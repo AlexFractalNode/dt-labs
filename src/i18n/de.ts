@@ -44,7 +44,7 @@ const de = {
     roadmap: {
       r1: {
         name: 'Regressions-Treppe',
-        desc: 'Regressionsbäume als Treppenfunktion: Splits nach Varianzreduktion und der reparierte Baum mit Kreuzvalidierung (TreeCV).',
+        desc: 'Regressionsbäume als Treppenfunktion: Splits nach Varianzreduktion und der Baum mit korrigierter Kreuzvalidierung (TreeCV).',
       },
       r2: {
         name: 'Informations-Rechner',
@@ -139,7 +139,7 @@ const de = {
       title: 'Überanpassung sichtbar',
       short: 'Ein unbegrenzter Baum lernt die Trainingsdaten auswendig.',
       see: 'Ohne Tiefenbegrenzung wächst der Baum auf 30 Blätter und trifft alle Trainingspunkte (100 %). In der 5-fachen Kreuzvalidierung erreicht er aber nur etwa 0,835.',
-      watch: 'Die Validierungskurve hat ihr Maximum bei Tiefe 3, mit etwa 0,880. Bei jeder anderen Tiefe liegt sie darunter, während die Trainingsgenauigkeit mit der Tiefe weiter steigt.',
+      watch: 'Die Validierungskurve hat ihr Maximum bei Tiefe 3, mit etwa 0,880. Bei jeder anderen Tiefe liegt sie darunter, während die Trainingsgenauigkeit mit der Tiefe bis auf 100 % steigt.',
       next: 'Ziehe die Tiefe selbst am Regler und beobachte die Lücke zwischen Training und Kreuzvalidierung. Das nächste Szenario begrenzt die Tiefe auf 3.',
     },
     c2: {
@@ -152,15 +152,15 @@ const de = {
     c3: {
       title: 'Nachträglich beschneiden',
       short: 'Ein Teilbaum mit zwei Blättern gewinnt gegen den vollen Baum.',
-      see: 'Beim Beschneiden zählt neben der Genauigkeit auch die Größe des Baums. Die kritischen Werte von α liegen bei etwa 0,41 und 0,55. Bei α = 0,45 gewinnt der Teilbaum mit 2 Blättern, obwohl er Fall 5 falsch einordnet.',
+      see: 'Beim Beschneiden zählt neben der Genauigkeit auch die Größe des Baums. Die kritischen Werte von α liegen bei etwa 0,41 und 0,55. Bei α = 0,45 gewinnt der Teilbaum mit 2 Blättern, obwohl er einen Punkt der Klasse 0 bei (3, 2) falsch einordnet.',
       watch: 'Je größer α, desto stärker kostet jedes zusätzliche Blatt. Zwischen den kritischen Werten bleibt der Baum gleich; er ändert sich nur, wenn α einen davon überschreitet.',
       next: 'Setze α erst auf 0,2, dann auf 0,6. Bei 0,2 bleibt mehr vom Baum stehen, bei 0,6 nur noch ein Blatt.',
     },
     f1: {
       title: 'Ein Baum gegen viele',
-      short: 'Viele zufällige Bäume irren sich seltener als einer.',
+      short: 'Hier irren sich 100 zufällige Bäume seltener als einer.',
       see: 'In der Galerie sehen einzelne Bäume zackig aus, das Bild des ganzen Waldes ist glatter. Die OOB-Genauigkeit steigt von etwa 0,82 bei einem Baum auf etwa 0,89 bei 100 Bäumen.',
-      watch: 'Ab etwa 20 Bäumen schwankt die OOB-Kurve nur noch um höchstens 0,02. Weitere Bäume verbessern das Ergebnis danach kaum noch.',
+      watch: 'Ab etwa 20 Bäumen schwankt die OOB-Kurve nur noch um höchstens 0,02. In diesem Beispiel verbessern weitere Bäume das Ergebnis danach kaum noch.',
       next: 'Schalte Bootstrap aus oder setze max_features auf 2 und beobachte, wie sich Galerie und OOB-Kurve verändern.',
     },
     f2: {
@@ -168,7 +168,7 @@ const de = {
       short: 'Dieselben drei Bäume geben zwei verschiedene Antworten.',
       see: 'Drei Bäume geben für Klasse 1 die Wahrscheinlichkeiten 0,51, 0,51 und 0,01. Zwei von ihnen stimmen für Klasse 1, das harte Votum sagt also Klasse 1. Der Mittelwert beträgt nur 0,343, die Mittelung sagt Klasse 0.',
       watch: 'Ein sehr sicherer Baum kann zwei knappe Bäume überstimmen, wenn man Wahrscheinlichkeiten mittelt. Scikit-learn mittelt die Wahrscheinlichkeiten, nicht die Stimmen.',
-      next: 'Verschiebe x* im Streudiagramm: Das Beispiel wird durch die echten Bäume des Waldes ersetzt, und du siehst, ob Votum und Mittelung dort übereinstimmen.',
+      next: 'Klicke in die Wald-Regionen, um x* zu setzen: Das Beispiel wird durch die echten Bäume des Waldes ersetzt, und du siehst, ob Votum und Mittelung dort übereinstimmen.',
     },
     f3: {
       title: 'Ohne Zufall kein Wald',
@@ -242,13 +242,13 @@ const de = {
         dataset: 'Wählt die Form der Daten: XOR, Halbmonde, Kreise oder Diagonale.',
         n: 'Anzahl erzeugter Punkte (2 bis 1000).',
         noise: 'Wie stark die Punkte um ihre ideale Lage streuen (0 bis 1).',
-        seed: 'Startwert des Zufalls (0 bis 9999); er steuert Daten und Bootstrap-Ziehungen.',
+        seed: 'Startwert des Zufalls (0 bis 9999); er steuert Daten, Bootstrap-Ziehungen und bei max_features 1 auch die Auswahl des Merkmals.',
         B: 'Anzahl der Bäume (1 bis 300); mehr Bäume glätten das Bild, bringen aber irgendwann kaum noch etwas.',
         maxFeatures: 'Wie viele Merkmale ein Split prüfen darf: 1 oder 2 (alle). Weniger Merkmale machen die Bäume verschiedener.',
         bootstrap: 'An: Jeder Baum lernt auf einer Ziehung mit Zurücklegen. Aus: Alle Bäume sehen alle Daten.',
         maxDepth: 'Höchste Tiefe jedes einzelnen Baums (1 bis 20 oder unbegrenzt).',
         minSamplesLeaf: 'Mindestzahl an Fällen pro Blatt in jedem Baum (1 bis 50).',
-        xStar: 'Klicke ins Wald-Bild, um den Punkt x* zu setzen, den Votum und Varianzmessung betrachten.',
+        xStar: 'Klicke in die Wald-Regionen, um den Punkt x* zu setzen, den Votum und Varianzmessung betrachten.',
         measure: 'Misst an x* mit frischen Stichproben, wie stark die Bäume und der Wald streuen; bei großem B kann das dauern, du kannst abbrechen.',
       },
     },

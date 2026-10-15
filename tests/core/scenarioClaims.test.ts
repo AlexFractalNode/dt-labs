@@ -2,7 +2,7 @@
  * Every number in a scenario text is proven here against the core, using exactly the state stored in the registry.
  */
 import { describe, expect, it } from 'vitest'
-import { chooseK, crossValidate, validationCurve } from '../../src/core/cv'
+import { accuracy, chooseK, crossValidate, validationCurve } from '../../src/core/cv'
 import { aggregate, fitForest, oob, oobCurve, type ForestParams } from '../../src/core/forest'
 import { generate } from '../../src/core/generators'
 import { autoChoices, growManual, manualImportances } from '../../src/core/manual'
@@ -151,9 +151,13 @@ describe('complexity scenarios', () => {
     expect(peak.map((p) => p.value)).toEqual([3])
     expect(maxCv).toBeCloseTo(0.88, 3)
     expect(maxCv).toBeGreaterThan(cv.mean)
-    // below the peak the curve is lower, and training keeps rising with depth
+    // below the peak the curve is lower; training never falls with depth and reaches 100 %
     for (const p of curve) if (p.value !== 3) expect(p.cvMean).toBeLessThan(maxCv)
+    for (let i = 1; i < curve.length; i++) expect(curve[i].trainMean).toBeGreaterThanOrEqual(curve[i - 1].trainMean)
     expect(curve[19].trainMean).toBeGreaterThan(curve[2].trainMean)
+    expect(curve[19].trainMean).toBe(1)
+    // the view shows the accuracy of the tree fitted on all data: also 100 % without a depth limit
+    expect(accuracy(g.y, g.X.map((x) => predict(tree, x)))).toBe(1)
   })
 
   it('c2: depth 3 lifts CV to 0.880 and training drops below 100 %', () => {
@@ -166,6 +170,8 @@ describe('complexity scenarios', () => {
     expect(cv.mean).toBeCloseTo(0.88, 3)
     expect(cv.trainMean).toBeLessThan(1)
     expect(nLeaves(shallow)).toBeLessThanOrEqual(8)
+    // the view shows the accuracy of the tree fitted on all data (depth 3): below 100 %
+    expect(accuracy(g.y, g.X.map((x) => predict(shallow, x)))).toBeLessThan(1)
     for (const depth of [2, 4]) {
       expect(crossValidate(g.X, g.y, 2, { ...params, maxDepth: depth }, k).mean, `depth ${depth}`).toBeLessThan(cv.mean)
     }
@@ -188,6 +194,7 @@ describe('complexity scenarios', () => {
     expect(nLeaves(pruned)).toBe(2)
     expect(predict(pruned, ds.X[4])).toBe(1)
     expect(ds.y[4]).toBe(0)
+    expect(ds.X[4]).toEqual([3, 2]) // "a class 0 point at (3, 2)"
     // the suggested alternatives keep more (0.2) or less (0.6) of the tree
     expect(nLeaves(pruneTree(full, 0.2))).toBeGreaterThan(2)
     expect(nLeaves(pruneTree(full, 0.6))).toBe(1)
