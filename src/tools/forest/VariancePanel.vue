@@ -67,6 +67,10 @@ let cancelFn: (() => void) | null = null
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 const round2 = (v: number) => Math.round(v * 100) / 100
+const round3 = (v: number) => Math.round(v * 1000) / 1000
+/** Slider range of σ²; a measured value outside it is clamped (and says so). */
+const SIGMA2_MIN = 0.001
+const SIGMA2_MAX = 1
 
 function measure(): void {
   const spec = props.spec
@@ -91,7 +95,7 @@ function measure(): void {
       result.value = { ...res, B: spec.params.nEstimators, xStar, key }
       run.value = 'idle'
       // enter the measured values into the model curve (within the slider ranges)
-      sigma2.value = round2(clamp(res.sigma2, 0.01, 1))
+      sigma2.value = round3(clamp(res.sigma2, SIGMA2_MIN, SIGMA2_MAX))
       if (res.rho !== null) rho.value = round2(clamp(res.rho, 0, 1))
     },
     (e: unknown) => {
@@ -143,7 +147,13 @@ function path(x: (v: number) => number, y: (v: number) => number): string {
 
 // ---- display -------------------------------------------------------------------------------------------------------
 const attrNumber = (v: number) => String(Number(v.toFixed(6)))
-const unitState = computed(() => (run.value === 'loading' ? 'loading' : run.value === 'error' ? 'error' : 'ready'))
+// `empty` until a measurement exists (nothing to read yet); the model curve and sliders work without it.
+const unitState = computed(() =>
+  run.value === 'loading' ? 'loading' : run.value === 'error' ? 'error' : result.value === null ? 'empty' : 'ready',
+)
+const sigmaClamped = computed(
+  () => result.value !== null && (result.value.sigma2 < SIGMA2_MIN || result.value.sigma2 > SIGMA2_MAX),
+)
 const shown = computed(() => (run.value === 'loading' ? null : result.value))
 const stale = computed(() => result.value !== null && result.value.key !== props.specKey)
 const errorText = computed(() => {
@@ -183,14 +193,17 @@ const xText = (m: Measured) => `(${fmtValue(lang.value, Number(m.xStar[0].toFixe
       <div data-param="sigma2">
         <LinearSlider
           v-model="sigma2"
-          :min="0.01"
-          :max="1"
-          :step="0.01"
+          :min="SIGMA2_MIN"
+          :max="SIGMA2_MAX"
+          :step="0.001"
           :label="t('forest.variance.sigma2')"
-          :format="(v: number) => fmt(lang, v, 2)"
+          :format="(v: number) => fmt(lang, v, 3)"
         />
       </div>
     </div>
+    <p v-if="sigmaClamped && result" class="note hint" data-note="sigma-clamped">
+      {{ t('forest.variance.sigmaClamped', { v: fmt(lang, result.sigma2, 4), min: fmt(lang, SIGMA2_MIN, 3) }) }}
+    </p>
     <p v-if="identical" class="note hint" data-note="rho-one">{{ t('forest.variance.identical') }}</p>
 
     <PlotFrame

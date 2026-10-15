@@ -7,6 +7,7 @@
  */
 import { computed } from 'vue'
 import { line } from 'd3-shape'
+import type { DtErrorCode } from '../../core/errors'
 import { useI18n } from '../../i18n'
 import { fmt } from '../../ui/format'
 import PlotFrame from '../../ui/PlotFrame.vue'
@@ -18,6 +19,8 @@ export interface OobPoint {
 }
 export interface CvReference {
   state: 'loading' | 'ready' | 'error'
+  /** Error code of a failed cross-validation (state 'error'). */
+  code?: DtErrorCode
   mean?: number
   std?: number
   k?: number
@@ -47,6 +50,10 @@ const unitState = computed(() => {
 const last = computed(() => (props.points.length > 0 ? props.points[props.points.length - 1] : null))
 const scored = computed(() => props.points.filter((p) => p.score !== null) as (OobPoint & { score: number })[])
 const maxB = computed(() => Math.max(2, last.value?.B ?? 2))
+const cvHelp = computed(() => {
+  if (props.cv.state !== 'error') return t('forest.oob.cvHelp')
+  return props.cv.code === 'TOO_FEW_PER_CLASS' ? t('forest.oob.cvError') : t('forest.oob.cvErrorOther')
+})
 const cvOk = computed(() => props.cv.state === 'ready' && props.cv.mean !== undefined && props.cv.std !== undefined)
 
 const xDomain = computed<[number, number]>(() => [0, maxB.value])
@@ -92,6 +99,7 @@ const covered = computed(() => (last.value ? props.n - last.value.uncovered : 0)
     :data-verify-uncovered="unitState === 'ready' && last ? last.uncovered : undefined"
     :data-verify-score="unitState === 'ready' && last && last.score !== null ? attrNumber(last.score) : undefined"
     :data-verify-cv="cvOk ? attrNumber(cv.mean as number) : undefined"
+    :data-verify-cv-error="cv.state === 'error' ? (cv.code ?? 'BAD_PARAM') : undefined"
     :aria-busy="unitState === 'loading'"
   >
     <dl class="cards" :class="{ stale: unitState === 'loading' }">
@@ -112,7 +120,7 @@ const covered = computed(() => (last.value ? props.n - last.value.uncovered : 0)
         <dd v-if="cvOk">{{ fmt(lang, cv.mean as number, 3) }} ± {{ fmt(lang, cv.std as number, 3) }}</dd>
         <dd v-else>{{ cv.state === 'error' ? '–' : '…' }}</dd>
         <dd class="help">
-          {{ cv.state === 'error' ? t('forest.oob.cvError') : t('forest.oob.cvHelp') }}
+          {{ cvHelp }}
         </dd>
       </div>
     </dl>

@@ -83,7 +83,9 @@ test('variance measurement survives slider changes and can be cancelled', async 
   const errors = trackErrors(page)
   await open(page, 'B=150&n=600')
   const variance = page.locator(unit('variance'))
-  await expect(variance).toHaveAttribute('data-verify-state', 'ready')
+  // nothing measured yet: empty, not ready
+  await expect(variance).toHaveAttribute('data-verify-state', 'empty')
+  await expect(variance).toHaveAttribute('data-verify-count', '0')
   await page.locator('[data-action="measure"]').click()
   await expect(variance).toHaveAttribute('data-verify-state', 'loading')
   // moving B retrains the forest but never touches the running measurement
@@ -94,12 +96,14 @@ test('variance measurement survives slider changes and can be cancelled', async 
   await page.locator('[data-action="cancel"]').click()
   await expect(variance).not.toHaveAttribute('data-verify-state', 'loading')
   await expect(variance).not.toHaveAttribute('data-verify-state', 'error')
+  await expect(variance).toHaveAttribute('data-verify-state', 'empty')
   // measure again (now with B = 5): finishes and reports a correlation
   await page.locator('[data-action="measure"]').click()
   await expect(variance).toHaveAttribute('data-verify-state', 'ready', LONG)
   const rho = Number(await variance.getAttribute('data-verify-rho'))
   expect(rho).toBeGreaterThanOrEqual(-1)
   expect(rho).toBeLessThanOrEqual(1)
+  await expect(variance).toHaveAttribute('data-verify-count', '1')
   expect(Number(await variance.getAttribute('data-verify-sigma2'))).toBeGreaterThan(0)
   expect(Number(await variance.getAttribute('data-verify-measured'))).toBeGreaterThanOrEqual(0)
   expect(errors).toEqual([])

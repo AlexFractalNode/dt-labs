@@ -63,6 +63,9 @@ describe('runJob', () => {
     for (let c = 0; c < G * G; c++) expect(res.proba[2 * c] + res.proba[2 * c + 1]).toBeCloseTo(1, 12)
     expect(res.oobCurve.map((p) => p.B)).toEqual([1, 4, B])
     expect(res.oob.covered + res.oob.uncovered).toBe(data.X.length)
+    // the full-forest evaluation is taken from the last curve point (no second OOB pass)
+    const last = res.oobCurve[res.oobCurve.length - 1]
+    expect(res.oob).toEqual({ score: last.score, covered: data.X.length - last.uncovered, uncovered: last.uncovered })
     expect(res.gallery.length).toBe(3)
     expect(res.gallery[0].counts.length).toBe(data.X.length)
     expect(res.gallery[0].regions.length).toBeGreaterThan(1)
@@ -85,6 +88,9 @@ describe('runJob', () => {
     )
     expect(res.gallery.length).toBe(2)
     expect(res.oobCurve[0].score).toBeNull()
+    // steps that do not end at B fall back to evaluating the whole forest
+    expect(res.oob.score).toBeNull()
+    expect(res.oob.uncovered).toBe(data.X.length)
   })
 
   it('runs a variance job like measureVariance', () => {

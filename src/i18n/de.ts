@@ -317,6 +317,7 @@ const de = {
       cvTitle: '{k}-fache CV, ein Baum',
       cvHelp: 'Mittel ± Standardabweichung über die Folds, für einen einzelnen Baum mit denselben Grenzen',
       cvError: 'Keine CV möglich: Eine Klasse hat weniger als 2 Fälle.',
+      cvErrorOther: 'Für diese Einstellungen ist keine CV möglich.',
       emptyTitle: 'OOB-Kurve leer',
       noBootstrap: 'Bootstrap ist aus: Jeder Baum nutzt alle Fälle, also bleibt kein Fall „out of bag“ und es gibt nichts zu bewerten.',
       xLabel: 'Anzahl Bäume B',
@@ -354,6 +355,7 @@ const de = {
       cardFormula: 'Var nach Formel (gemessenes ρ, σ²)',
       cardsNote: 'Die gemessenen Werte wurden in die Regler übernommen (auf deren Bereich begrenzt). Gemessen wird die Varianz der Wahrscheinlichkeit für Klasse 1.',
       none: 'Noch keine Messung.',
+      sigmaClamped: 'Das gemessene σ² ({v}) liegt unter dem Schieberbereich, der Schieber zeigt daher {min}.',
     },
     error: {
       WORKER_FAILED: 'Die Berechnung im Hintergrund ist fehlgeschlagen. Ändere einen Parameter, um es erneut zu versuchen.',

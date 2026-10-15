@@ -321,6 +321,7 @@ const en: Messages<typeof de> = {
       cvTitle: '{k}-fold CV, one tree',
       cvHelp: 'Mean ± standard deviation over the folds, for a single tree with the same limits',
       cvError: 'No CV possible: a class has fewer than 2 cases.',
+      cvErrorOther: 'No CV possible for these settings.',
       emptyTitle: 'OOB curve empty',
       noBootstrap: 'Bootstrap is off: every tree uses all cases, so no case is out of bag and there is nothing to score.',
       xLabel: 'Number of trees B',
@@ -358,6 +359,7 @@ const en: Messages<typeof de> = {
       cardFormula: 'Var by formula (measured ρ, σ²)',
       cardsNote: 'The measured values were entered into the sliders (limited to their range). What is measured is the variance of the probability for class 1.',
       none: 'No measurement yet.',
+      sigmaClamped: 'The measured σ² ({v}) is below the slider range, so the slider shows {min}.',
     },
     error: {
       WORKER_FAILED: 'The background computation failed. Change a parameter to try again.',

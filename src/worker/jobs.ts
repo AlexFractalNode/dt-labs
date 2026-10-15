@@ -78,13 +78,14 @@ function runForest(job: Extract<DtJob, { kind: 'forest' }>, onProgress: Progress
     regions: leafRegions(tree, grid.bounds),
     counts: Array.from(forest.counts[i]),
   }))
-  return {
-    trees: forest.trees,
-    proba,
-    oobCurve: oobCurve(forest, X, y, job.oobSteps),
-    oob: oob(forest, X, y),
-    gallery,
-  }
+  const curve = oobCurve(forest, X, y, job.oobSteps)
+  // The views always end the steps at B, so the last point already is the full-forest OOB evaluation.
+  const last = curve[curve.length - 1]
+  const full =
+    last !== undefined && last.B === forest.trees.length
+      ? { score: last.score, covered: X.length - last.uncovered, uncovered: last.uncovered }
+      : oob(forest, X, y)
+  return { trees: forest.trees, proba, oobCurve: curve, oob: full, gallery }
 }
 
 export function runJob<J extends DtJob>(job: J, onProgress: ProgressFn): ResultOf<J>

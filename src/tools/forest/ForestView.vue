@@ -200,8 +200,8 @@ function computeCv(): void {
       k,
     )
     cvRef.value = { state: 'ready', mean: r.mean, std: r.std, k }
-  } catch {
-    cvRef.value = { state: 'error' }
+  } catch (e) {
+    cvRef.value = { state: 'error', code: e instanceof DtError ? e.code : 'BAD_PARAM' }
   }
 }
 function scheduleCv(): void {
