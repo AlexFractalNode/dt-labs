@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { useId } from 'vue'
 
-defineProps<{ modelValue: number; min: number; max: number; step: number; label: string }>()
+defineProps<{
+  modelValue: number
+  min: number
+  max: number
+  step: number
+  label: string
+  /** Display text of the value (default: the number as is). */
+  format?: (v: number) => string
+}>()
 const emit = defineEmits<{ 'update:modelValue': [v: number] }>()
 const id = useId()
 
@@ -15,7 +23,7 @@ function onInput(e: Event) {
   <div class="slider" data-slider="linear">
     <div class="head">
       <label :for="id" class="label">{{ label }}</label>
-      <output :for="id" class="value">{{ modelValue }}</output>
+      <output :for="id" class="value">{{ format ? format(modelValue) : modelValue }}</output>
     </div>
     <input :id="id" type="range" :min="min" :max="max" :step="step" :value="modelValue" @input="onInput" />
   </div>

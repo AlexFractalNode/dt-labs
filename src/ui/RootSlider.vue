@@ -7,7 +7,15 @@ import { computed, useId } from 'vue'
  * textbook values such as 0.2, 0.45 and 0.6 reachable as exact numbers.
  */
 const props = withDefaults(
-  defineProps<{ modelValue: number; min: number; max: number; label: string; decimals?: number }>(),
+  defineProps<{
+    modelValue: number
+    min: number
+    max: number
+    label: string
+    decimals?: number
+    /** Display text of the value (default: the number as is). */
+    format?: (v: number) => string
+  }>(),
   { decimals: 3 },
 )
 const emit = defineEmits<{ 'update:modelValue': [v: number] }>()
@@ -34,7 +42,7 @@ function onInput(e: Event) {
   <div class="slider" data-slider="root">
     <div class="head">
       <label :for="id" class="label">{{ label }}</label>
-      <output :for="id" class="value">{{ modelValue }}</output>
+      <output :for="id" class="value">{{ format ? format(modelValue) : modelValue }}</output>
     </div>
     <input
       :id="id"
@@ -43,7 +51,7 @@ function onInput(e: Event) {
       max="1"
       :step="1 / STEPS"
       :value="position"
-      :aria-valuetext="String(modelValue)"
+      :aria-valuetext="format ? format(modelValue) : String(modelValue)"
       @input="onInput"
     />
   </div>

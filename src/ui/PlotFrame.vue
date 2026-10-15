@@ -105,7 +105,7 @@ function onMove(e: MouseEvent) {
         @click="onClick"
         @contextmenu="onContext"
       />
-      <g :clip-path="`url(#${clipId})`"><slot /></g>
+      <g :clip-path="`url(#${clipId})`"><slot :x="xScale" :y="yScale" /></g>
     </g>
   </svg>
 </template>

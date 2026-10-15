@@ -5,6 +5,7 @@ import { useI18n, toggleLang, type MessageKey } from './i18n'
 import { dismissNotice, notify, useNotices } from './notify'
 import { buildHash, urlProblems, type Route } from './urlState'
 import HomeView from './tools/home/HomeView.vue'
+import ComplexityView from './tools/complexity/ComplexityView.vue'
 import SplitsView from './tools/splits/SplitsView.vue'
 
 const { lang, t } = useI18n()
@@ -79,6 +80,7 @@ watch(
     <main>
       <!-- The tool views are added task by task; until then the other routes show the home view. -->
       <SplitsView v-if="route === 'splits'" />
+      <ComplexityView v-else-if="route === 'complexity'" />
       <HomeView v-else />
     </main>
   </div>

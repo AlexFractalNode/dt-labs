@@ -2,6 +2,10 @@
 import type { ClassDataset } from '../../core/dataset'
 import type { Candidate } from '../../core/splits'
 import type { Lang } from '../../i18n'
+import { fmtValue } from '../../ui/format'
+
+// fmt / fmtValue moved to src/ui/format.ts (shared with the complexity lab); re-exported for the split views.
+export { fmt, fmtValue } from '../../ui/format'
 
 const POINT_DECIMAL = /^-?\d+\.\d+$/
 const COMMA_DECIMAL = /^-?\d+,\d+$/
@@ -21,15 +25,6 @@ export function normalizeCell(s: string): string {
 export function parseTyped(s: string): number {
   const v = normalizeCell(s)
   return /^-?\d+(\.\d+)?$/.test(v) ? Number(v) : Number.NaN
-}
-
-export function fmt(lang: Lang, v: number, digits = 3): string {
-  return new Intl.NumberFormat(lang, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(v)
-}
-
-/** Threshold or count with as many decimals as needed (max 6). */
-export function fmtValue(lang: Lang, v: number): string {
-  return new Intl.NumberFormat(lang, { maximumFractionDigits: 6 }).format(v)
 }
 
 /** Machine-readable gain for the verification contract: '.' and exactly 6 decimals. */
