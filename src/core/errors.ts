@@ -8,6 +8,7 @@ export type DtErrorCode =
   | 'TOO_FEW_PER_CLASS'
   | 'TIE_ORACLE'
   | 'CANCELLED'
+  | 'WORKER_FAILED'
 
 export class DtError extends Error {
   code: DtErrorCode

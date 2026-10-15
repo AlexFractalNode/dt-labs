@@ -46,6 +46,30 @@ const de = {
   plot: {
     point: 'Datenpunkt',
   },
+  tree: {
+    label: 'Entscheidungsbaum',
+  },
+  url: {
+    noticeTitle: 'Hinweis zur Adresse',
+    noticeIntro: 'Einige Angaben in der Adresse wurden korrigiert:',
+    problem: {
+      preset: 'Datensatz (preset): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      criterion: 'Kriterium (criterion): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      grow: 'Baumwachstum (grow): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      n: 'Anzahl Punkte (n): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      noise: 'Rauschen (noise): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      seed: 'Seed (seed): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      depth: 'Maximale Tiefe (depth): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      split: 'min_samples_split (split): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      leaf: 'min_samples_leaf (leaf): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      mid: 'min_impurity_decrease (mid): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      alpha: 'ccp_alpha (alpha): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      curve: 'Kurvenparameter (curve): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      B: 'Anzahl Bäume (B): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      mf: 'max_features (mf): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+      bootstrap: 'Bootstrap (bootstrap): ungültig oder außerhalb des Bereichs, der Standardwert bzw. der nächste erlaubte Wert wird verwendet.',
+    },
+  },
   status: {
     loading: 'Berechne …',
     empty: 'Keine Daten vorhanden.',

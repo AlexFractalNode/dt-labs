@@ -50,6 +50,30 @@ const en: Messages<typeof de> = {
   plot: {
     point: 'Data point',
   },
+  tree: {
+    label: 'Decision tree',
+  },
+  url: {
+    noticeTitle: 'Note on the address',
+    noticeIntro: 'Some values in the address were corrected:',
+    problem: {
+      preset: 'data set (preset): invalid or out of range, the default or the nearest allowed value is used.',
+      criterion: 'criterion: invalid or out of range, the default or the nearest allowed value is used.',
+      grow: 'tree growth (grow): invalid or out of range, the default or the nearest allowed value is used.',
+      n: 'number of points (n): invalid or out of range, the default or the nearest allowed value is used.',
+      noise: 'noise: invalid or out of range, the default or the nearest allowed value is used.',
+      seed: 'seed: invalid or out of range, the default or the nearest allowed value is used.',
+      depth: 'maximum depth (depth): invalid or out of range, the default or the nearest allowed value is used.',
+      split: 'min_samples_split (split): invalid or out of range, the default or the nearest allowed value is used.',
+      leaf: 'min_samples_leaf (leaf): invalid or out of range, the default or the nearest allowed value is used.',
+      mid: 'min_impurity_decrease (mid): invalid or out of range, the default or the nearest allowed value is used.',
+      alpha: 'ccp_alpha (alpha): invalid or out of range, the default or the nearest allowed value is used.',
+      curve: 'curve parameter (curve): invalid or out of range, the default or the nearest allowed value is used.',
+      B: 'number of trees (B): invalid or out of range, the default or the nearest allowed value is used.',
+      mf: 'max_features (mf): invalid or out of range, the default or the nearest allowed value is used.',
+      bootstrap: 'bootstrap: invalid or out of range, the default or the nearest allowed value is used.',
+    },
+  },
   status: {
     loading: 'Computing …',
     empty: 'No data available.',
