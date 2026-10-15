@@ -40,6 +40,41 @@ const en: Messages<typeof de> = {
         goal: 'You understand why a forest varies less than a single tree and when correlation limits that.',
       },
     },
+    scenarios: 'Scenarios',
+    roadmapTitle: 'What comes next',
+    roadmapLead: 'Ideas for further tools on the same numerical core. They are not part of this version.',
+    chapters: 'ch. {chapter}',
+    allChapters: 'all chapters',
+    roadmap: {
+      r1: {
+        name: 'Regression staircase',
+        desc: 'Regression trees as step functions: splits by variance reduction and the repaired tree with cross-validation (TreeCV).',
+      },
+      r2: {
+        name: 'Information calculator',
+        desc: 'Entropy, cross-entropy and KL divergence to compute by hand, plus the Gini and entropy curves side by side.',
+      },
+      r3: {
+        name: 'Exercise trainer',
+        desc: 'Randomised variants of the textbook’s numeric exercises, with automatic checking of your answer.',
+      },
+      r4: {
+        name: 'Leakage lab with Titanic',
+        desc: 'Imputation before versus after the split, the pipeline as the remedy, and metrics with the ROC curve.',
+      },
+      r5: {
+        name: 'Adult explorer',
+        desc: 'Explore categories, missing values and encodings on the Adult data set and see how they affect the tree.',
+      },
+      r6: {
+        name: 'Embedding in the DS hub',
+        desc: 'An IFrame snippet for each matching place in the notebook.',
+      },
+      r7: {
+        name: 'Learning website',
+        desc: 'Integration into the professor’s learning website.',
+      },
+    },
     noticeTitle: 'Notice',
     notice: 'Everything runs in the browser; your data never leaves your machine. The texts are written independently; references such as "textbook ch. 9" only point to where the course covers a topic.',
   },

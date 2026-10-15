@@ -2,6 +2,7 @@
 import { useI18n, type MessageKey } from '../../i18n'
 import { buildHash, type Route } from '../../urlState'
 import RefBadge from '../../ui/RefBadge.vue'
+import { scenarioHref, scenariosFor } from '../scenarios'
 import { TOOL_REFS } from '../toolRefs'
 
 const { t } = useI18n()
@@ -37,6 +38,23 @@ const TOOLS: ToolCard[] = [
     goal: 'home.tool.forest.goal',
   },
 ]
+
+// Roadmap R1–R7 (ideas on the same computing core, not part of this version). `chapter` is null where the item
+// has no textbook chapter, 'all' for every chapter.
+const ROADMAP: { id: string; chapter: string | null }[] = [
+  { id: 'r1', chapter: '14' },
+  { id: 'r2', chapter: '1–2, 4' },
+  { id: 'r3', chapter: 'all' },
+  { id: 'r4', chapter: '6–8' },
+  { id: 'r5', chapter: '7' },
+  { id: 'r6', chapter: null },
+  { id: 'r7', chapter: null },
+]
+
+const roadmapKey = (id: string, field: 'name' | 'desc') => `home.roadmap.${id}.${field}` as MessageKey
+const scenarioTitleKey = (id: string) => `scenario.${id}.title` as MessageKey
+const chapterText = (chapter: string) =>
+  chapter === 'all' ? t('home.allChapters') : t('home.chapters', { chapter })
 </script>
 
 <template>
@@ -61,10 +79,37 @@ const TOOLS: ToolCard[] = [
           </p>
           <RefBadge :chapter="TOOL_REFS[tool.route].chapter" :code="TOOL_REFS[tool.route].code" />
           <div class="card-actions">
-            <a class="open" :href="buildHash(tool.route, tool.params)">{{ t('home.open', { tool: t(tool.name) }) }}</a>
+            <a class="open" data-open-link :href="buildHash(tool.route, tool.params)">{{ t('home.open', { tool: t(tool.name) }) }}</a>
+          </div>
+          <div class="scenario-links">
+            <span class="scenario-links-label">{{ t('home.scenarios') }}</span>
+            <a
+              v-for="s in scenariosFor(tool.route)"
+              :key="s.id"
+              class="scenario-link"
+              :data-scenario-link="s.id"
+              :href="scenarioHref(s)"
+            >{{ t(scenarioTitleKey(s.id)) }}</a>
           </div>
         </li>
       </ul>
+    </section>
+
+    <section class="roadmap" aria-labelledby="home-roadmap-title">
+      <h3 id="home-roadmap-title" class="section-label">{{ t('home.roadmapTitle') }}</h3>
+      <p class="muted">{{ t('home.roadmapLead') }}</p>
+      <ol data-verify-unit="home-roadmap" data-verify-state="ready" :data-verify-count="ROADMAP.length">
+        <li v-for="item in ROADMAP" :key="item.id">
+          <span class="rid">{{ item.id.toUpperCase() }}</span>
+          <div>
+            <p class="r-name">
+              {{ t(roadmapKey(item.id, 'name')) }}
+              <span v-if="item.chapter" class="r-chapter">{{ chapterText(item.chapter) }}</span>
+            </p>
+            <p class="r-desc">{{ t(roadmapKey(item.id, 'desc')) }}</p>
+          </div>
+        </li>
+      </ol>
     </section>
 
     <footer class="fine">
@@ -194,6 +239,74 @@ const TOOLS: ToolCard[] = [
 .open:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+.scenario-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--grid);
+}
+.scenario-links-label {
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.scenario-link {
+  font-size: 0.88rem;
+  text-underline-offset: 3px;
+}
+
+/* Roadmap */
+.roadmap {
+  display: grid;
+  gap: 0.4rem;
+}
+.roadmap .muted {
+  margin: 0 0 0.4rem;
+  color: var(--text-muted);
+}
+.roadmap ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr));
+  gap: 0 2rem;
+}
+.roadmap li {
+  display: grid;
+  grid-template-columns: 2.6rem minmax(0, 1fr);
+  gap: 0.6rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid var(--grid);
+}
+.rid {
+  font-family: var(--serif);
+  font-weight: 600;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.r-name {
+  margin: 0;
+  font-weight: 600;
+}
+.r-chapter {
+  margin-left: 0.4rem;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.r-desc {
+  margin: 0.2rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
 }
 
 /* Notice */

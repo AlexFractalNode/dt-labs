@@ -36,6 +36,41 @@ const de = {
         goal: 'Du verstehst, warum ein Wald weniger streut als ein einzelner Baum und wann Korrelation das begrenzt.',
       },
     },
+    scenarios: 'Szenarien',
+    roadmapTitle: 'Was kommt noch',
+    roadmapLead: 'Ideen für weitere Werkzeuge auf demselben Rechenkern. Sie sind nicht Teil dieser Version.',
+    chapters: 'Kap. {chapter}',
+    allChapters: 'alle Kapitel',
+    roadmap: {
+      r1: {
+        name: 'Regressions-Treppe',
+        desc: 'Regressionsbäume als Treppenfunktion: Splits nach Varianzreduktion und der reparierte Baum mit Kreuzvalidierung (TreeCV).',
+      },
+      r2: {
+        name: 'Informations-Rechner',
+        desc: 'Entropie, Kreuzentropie und KL-Divergenz zum Nachrechnen, dazu die Kurven von Gini und Entropie im Vergleich.',
+      },
+      r3: {
+        name: 'Übungs-Trainer',
+        desc: 'Zufällige Varianten der numerischen Übungsaufgaben aus dem Lehrbuch, deren Lösung automatisch geprüft wird.',
+      },
+      r4: {
+        name: 'Leckage-Labor mit Titanic',
+        desc: 'Imputation vor und nach dem Split im Vergleich, die Pipeline als Gegenmittel sowie Kennzahlen und ROC-Kurve.',
+      },
+      r5: {
+        name: 'Adult-Explorer',
+        desc: 'Kategorien, fehlende Werte und Kodierungen am Adult-Datensatz untersuchen und ihre Wirkung auf den Baum sehen.',
+      },
+      r6: {
+        name: 'Einbettung in den DS-Hub',
+        desc: 'Ein IFrame-Schnipsel für jede passende Stelle im Notebook.',
+      },
+      r7: {
+        name: 'Lernwebseite',
+        desc: 'Integration in die Lernwebseite des Dozenten.',
+      },
+    },
     noticeTitle: 'Hinweis',
     notice: 'Alles läuft im Browser, Daten verlassen deinen Rechner nicht. Die Texte sind eigenständig geschrieben; Verweise wie „Lehrbuch Kap. 9“ zeigen nur, wo das Thema im Kurs behandelt wird.',
   },
