@@ -1,0 +1,11 @@
+﻿Wetter;Temperatur;Luftfeuchte;Spiel
+sonnig;27,5;85;nein
+sonnig;28;90;nein
+bedeckt;26,5;78;ja
+regen;21;96;ja
+regen;18,5;80;ja
+regen;17;70;nein
+bedeckt;16,5;65;ja
+sonnig;22;95;nein
+sonnig;19,5;70;ja
+regen;23;80;ja

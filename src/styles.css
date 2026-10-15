@@ -1,0 +1,121 @@
+/* Design tokens: calm academic palette (paper / ink), light and dark. */
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
+
+  --bg: #fbfaf7;
+  --surface: #ffffff;
+  --text: #1b2230;
+  --text-muted: #4f596b;
+  --border: #c9ced8;
+  --grid: #e6e8ee;
+  --axis: #5b6577;
+  --accent: #2b5c9e;
+  --focus: #b4530a;
+  --error: #b3261e;
+  --error-bg: #fdecea;
+
+  /* Plot ink for data points (>= 3:1 on --bg). */
+  --c-points: #111827;
+
+  /* Class colours (Okabe-Ito based, colour-blind safe, >= 3:1 on --surface): blue, vermillion, bluish green,
+     reddish purple, dark yellow, slate. Six marker shapes (ui/classStyle.ts) make them distinguishable without colour. */
+  --c-class-0: #0072b2;
+  --c-class-1: #d55e00;
+  --c-class-2: #007a5a;
+  --c-class-3: #b0407f;
+  --c-class-4: #8c7300;
+  --c-class-5: #5f6b7a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14181f;
+    --surface: #1c222c;
+    --text: #e8edf5;
+    --text-muted: #aab3c2;
+    --border: #3a4352;
+    --grid: #262d39;
+    --axis: #8d97a8;
+    --accent: #7fb0ee;
+    --focus: #f5b062;
+    --error: #f2877f;
+    --error-bg: #3a1f1d;
+
+    --c-points: #ffffff;
+
+    --c-class-0: #56b4e9;
+    --c-class-1: #f0a030;
+    --c-class-2: #3ccb9f;
+    --c-class-3: #e08ac0;
+    --c-class-4: #e6d34a;
+    --c-class-5: #a9b4c3;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+main {
+  padding: 1rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Shared button look: neutral by default, .primary for the one main action of a group. */
+.btn {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--surface);
+  font-weight: 600;
+}
+.btn.small {
+  padding: 0.2rem 0.55rem;
+  font-size: 0.82rem;
+}
+.btn.on {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
