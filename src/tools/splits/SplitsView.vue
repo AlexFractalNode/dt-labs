@@ -18,6 +18,7 @@ import BarList from '../../ui/BarList.vue'
 import Formula from '../../ui/Formula.vue'
 import { classColor } from '../../ui/classStyle'
 import RefBadge from '../../ui/RefBadge.vue'
+import { TOOL_REFS } from '../toolRefs'
 import ScenarioArea from '../../ui/ScenarioArea.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
@@ -347,7 +348,7 @@ const formatShare = (v: number) => fmt(lang.value, v, 3)
     <header class="head">
       <div class="head-top">
         <h2 class="title">{{ t('nav.splits') }}</h2>
-        <RefBadge chapter="5.2–5.6" code="99–128" />
+        <RefBadge :chapter="TOOL_REFS.splits.chapter" :code="TOOL_REFS.splits.code" />
       </div>
       <p class="lead">{{ t('splits.lead') }}</p>
     </header>

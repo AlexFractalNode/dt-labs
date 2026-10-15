@@ -28,6 +28,7 @@ import { fmt, fmtValue } from '../../ui/format'
 import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
 import RefBadge from '../../ui/RefBadge.vue'
+import { TOOL_REFS } from '../toolRefs'
 import RegionLayer from '../../ui/RegionLayer.vue'
 import ScenarioArea from '../../ui/ScenarioArea.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
@@ -383,7 +384,7 @@ const modelFailed = computed(() => shown.value === null)
     <header class="head">
       <div class="head-top">
         <h2 class="title">{{ t('nav.complexity') }}</h2>
-        <RefBadge chapter="9–11" code="62, 75–82, 170–212" />
+        <RefBadge :chapter="TOOL_REFS.complexity.chapter" :code="TOOL_REFS.complexity.code" />
       </div>
       <p class="lead">{{ t('complexity.lead') }}</p>
     </header>

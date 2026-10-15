@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import type { ToolId } from '../../src/tools/scenarios'
+import { TOOL_REFS } from '../../src/tools/toolRefs'
 
 /** Collects console errors and uncaught exceptions of a page. */
 function trackErrors(page: Page): string[] {
@@ -68,6 +69,19 @@ for (const tool of TOOLS) {
     await expect(drawer(page).locator('[data-help="course"]')).toContainText('Kap.')
     await expect(drawer(page).locator('a[data-help-scenario]')).toHaveCount(3)
     expect(errors).toEqual([])
+  })
+}
+
+for (const tool of TOOLS) {
+  test(`${tool}: chapter badge in the view and the course line in the help agree with TOOL_REFS`, async ({ page }) => {
+    await openHelp(page, tool)
+    const { chapter, code } = TOOL_REFS[tool]
+    const badge = page.locator('main header.head .ref-badge')
+    await expect(badge).toContainText(chapter)
+    await expect(badge).toContainText(code)
+    const course = drawer(page).locator('[data-help="course"]')
+    await expect(course).toContainText(chapter)
+    await expect(course).toContainText(code)
   })
 }
 
@@ -150,6 +164,26 @@ test('desktop 1280 px: the content makes room and a control on the right stays c
   // not modal: the page is not inert
   expect(await inert(page)).toBe(false)
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(1280)
+})
+
+test('desktop 1280 px: a global notice makes room too and its dismiss button stays clickable', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+  // an unknown route raises the global notice (notice.invalidUrl); it stays when the user moves on to a tool
+  await page.goto('/#/gibt-es-nicht?lang=de')
+  const bar = page.locator(unit('notice-bar'))
+  await expect(bar).toHaveAttribute('data-verify-count', '1', T)
+  await page.locator('nav a[href^="#/complexity"]').click()
+  await expect(page.locator(unit('metrics'))).toHaveAttribute('data-verify-state', /^(ready|loading)$/, T)
+  await helpBtn(page).click()
+  await expect(drawer(page)).toHaveAttribute('data-verify-state', 'ready', T)
+  await expect(bar).toHaveAttribute('data-verify-count', '1')
+  expect(await bar.evaluate((el) => getComputedStyle(el).paddingRight)).toBe('376px')
+  const dismiss = bar.locator('.dismiss')
+  const d = (await dismiss.boundingBox())!
+  const dr = (await drawer(page).boundingBox())!
+  expect(d.x + d.width).toBeLessThanOrEqual(dr.x)
+  await dismiss.click()
+  await expect(bar).toHaveAttribute('data-verify-count', '0')
 })
 
 test('desktop: a scenario link applies the scenario and keeps the drawer open', async ({ page }) => {

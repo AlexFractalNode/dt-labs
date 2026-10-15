@@ -154,6 +154,7 @@ watch(
       :data-verify-state="notices.length ? 'ready' : 'empty'"
       :data-verify-count="notices.length"
       role="status"
+      :class="{ 'help-pushed': pushed }"
       :inert="modal"
     >
       <p v-for="n in notices" :key="n.id" class="notice">
@@ -257,6 +258,10 @@ main.help-pushed {
 }
 .notices:not(:empty) {
   padding: 0.5rem 1rem 0;
+}
+/* Same room as the tool below, so a dismiss button never lies under the drawer. */
+.notices.help-pushed:not(:empty) {
+  padding-right: calc(360px + 1rem);
 }
 .notice {
   display: flex;

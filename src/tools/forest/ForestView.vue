@@ -18,6 +18,7 @@ import GridLayer from '../../ui/GridLayer.vue'
 import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
 import RefBadge from '../../ui/RefBadge.vue'
+import { TOOL_REFS } from '../toolRefs'
 import ScenarioArea from '../../ui/ScenarioArea.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import { createJobClient } from '../../worker/client'
@@ -299,7 +300,7 @@ const noticeProblems = computed(() => [...new Set([...urlProblems.value, ...scen
     <header class="head">
       <div class="head-top">
         <h2 class="title">{{ t('nav.forest') }}</h2>
-        <RefBadge chapter="12–13" code="213–270" />
+        <RefBadge :chapter="TOOL_REFS.forest.chapter" :code="TOOL_REFS.forest.code" />
       </div>
       <p class="lead">{{ t('forest.lead') }}</p>
     </header>
