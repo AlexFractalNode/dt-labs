@@ -23,11 +23,14 @@ export interface DatasetLimits {
   maxBytes?: number
   maxRows?: number
   maxFeatures?: number
+  maxClasses?: number
 }
 
 const DEFAULT_MAX_BYTES = 1_000_000
 const DEFAULT_MAX_ROWS = 200
 const DEFAULT_MAX_FEATURES = 8
+/** The class palette has six colours (--c-class-0..5); more classes could not be told apart. */
+const DEFAULT_MAX_CLASSES = 6
 
 /** Same set of missing markers as the CSV parser (after trimming). */
 const MISSING = /^(na|n\/a|nan|null|\?)$/i
@@ -65,19 +68,27 @@ function compareCodePoints(a: string, b: string): number {
 }
 
 /**
- * Shared conversion used by fromTable and rowsToDataset. Order of checks: target, EMPTY_DATA (< 2 rows),
- * CSV_LIMIT (rows, features), MISSING_VALUES (first offending cell, row-major), SINGLE_CLASS.
+ * Row and feature limits (`columns` includes the target column). Shared by `build` and by callers that must reject an
+ * oversized table before it is shown anywhere.
  */
-function build(columns: string[], cells: Cell[][], target: string, opts?: DatasetLimits): ClassDataset {
+export function checkTableLimits(columnCount: number, rowCount: number, opts?: DatasetLimits): void {
   const maxRows = opts?.maxRows ?? DEFAULT_MAX_ROWS
   const maxFeatures = opts?.maxFeatures ?? DEFAULT_MAX_FEATURES
+  if (rowCount > maxRows) throw new DtError('CSV_LIMIT', { rows: rowCount, maxRows })
+  const nFeatures = columnCount - 1
+  if (nFeatures > maxFeatures) throw new DtError('CSV_LIMIT', { features: nFeatures, maxFeatures })
+}
+
+/**
+ * Shared conversion used by fromTable and rowsToDataset. Order of checks: target, EMPTY_DATA (< 2 rows),
+ * CSV_LIMIT (rows, features), MISSING_VALUES (first offending cell, row-major), SINGLE_CLASS, CSV_LIMIT (classes).
+ */
+function build(columns: string[], cells: Cell[][], target: string, opts?: DatasetLimits): ClassDataset {
   const t = columns.indexOf(target)
   if (t < 0) throw new DtError('BAD_PARAM', { target })
   if (columns.length < 2) throw new DtError('EMPTY_DATA', { reason: 'noFeatures' })
   if (cells.length < 2) throw new DtError('EMPTY_DATA', { rows: cells.length })
-  if (cells.length > maxRows) throw new DtError('CSV_LIMIT', { rows: cells.length, maxRows })
-  const nFeatures = columns.length - 1
-  if (nFeatures > maxFeatures) throw new DtError('CSV_LIMIT', { features: nFeatures, maxFeatures })
+  checkTableLimits(columns.length, cells.length, opts)
 
   const data: (number | string)[][] = cells.map((row, i) =>
     columns.map((name, j) => {
@@ -120,6 +131,8 @@ function build(columns: string[], cells: Cell[][], target: string, opts?: Datase
   if (labels.every((v) => typeof v === 'number')) names.sort((a, b) => Number(a) - Number(b))
   else names.sort(compareCodePoints)
   if (names.length < 2) throw new DtError('SINGLE_CLASS', { classes: names.length })
+  const maxClasses = opts?.maxClasses ?? DEFAULT_MAX_CLASSES
+  if (names.length > maxClasses) throw new DtError('CSV_LIMIT', { classes: names.length, maxClasses })
   const code = new Map(names.map((n, k) => [n, k]))
   const y = labels.map((v) => code.get(String(v))!)
   return { features, X, y, classNames: names }

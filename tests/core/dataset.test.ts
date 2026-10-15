@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { loadGolden } from '../helpers/golden'
 import { DtError } from '../../src/core/errors'
-import { datasetToRows, fromCsvText, fromTable, rowsToDataset } from '../../src/core/dataset'
+import { checkTableLimits, datasetToRows, fromCsvText, fromTable, rowsToDataset } from '../../src/core/dataset'
 import { PRESETS } from '../../src/core/presets'
 
 function codeOf(fn: () => unknown): DtError {
@@ -93,6 +93,24 @@ describe('dataset', () => {
     expect(wide.details).toMatchObject({ features: 9 })
 
     expect(codeOf(() => fromCsvText('a;c\n1;x\n2;y\n', 'nope')).code).toBe('BAD_PARAM')
+  })
+
+  it('rejects more than six classes with CSV_LIMIT (details.classes)', () => {
+    const csv = (k: number) => ['a;c', ...Array.from({ length: k }, (_, i) => `${i};k${i}`), ''].join('\n')
+    expect(fromCsvText(csv(6), 'c').classNames).toHaveLength(6)
+    const e = codeOf(() => fromCsvText(csv(7), 'c'))
+    expect(e.code).toBe('CSV_LIMIT')
+    expect(e.details).toMatchObject({ classes: 7, maxClasses: 6 })
+    const rows = Array.from({ length: 7 }, (_, i) => [String(i), `k${i}`])
+    expect(codeOf(() => rowsToDataset(['a', 'c'], rows, 'c')).details).toMatchObject({ classes: 7 })
+  })
+
+  it('checkTableLimits reports rows and features before any dataset is built', () => {
+    expect(() => checkTableLimits(3, 200)).not.toThrow()
+    const rowsErr = codeOf(() => checkTableLimits(3, 201))
+    expect(rowsErr.code).toBe('CSV_LIMIT')
+    expect(rowsErr.details).toMatchObject({ rows: 201, maxRows: 200 })
+    expect(codeOf(() => checkTableLimits(10, 5)).details).toMatchObject({ features: 9, maxFeatures: 8 })
   })
 
   it('rejects text above maxBytes before parsing', () => {
