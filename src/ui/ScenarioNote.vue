@@ -4,14 +4,19 @@ import { useI18n, type MessageKey } from '../i18n'
 import type { Scenario } from '../tools/scenarios'
 
 /**
- * Explanation box of the active scenario. The root and its live region stay in the DOM (hidden when there is no
- * scenario), so screen readers announce the content that appears when a scenario is applied.
+ * Explanation box of the active scenario. The box stays in the DOM (hidden when there is no scenario) but is no live
+ * region: a hidden region is not in the accessibility tree, so un-hiding it and filling it in one render would go
+ * unannounced, and an atomic box would be re-read on every deviation or language change. A permanent visually hidden
+ * sibling announces only the title (plus the deviation hint while deviated).
  */
 const props = defineProps<{ scenario: Scenario | null; deviated: boolean }>()
 const emit = defineEmits<{ close: []; restore: [] }>()
 const { t } = useI18n()
 
 const key = (part: 'title' | 'see' | 'watch' | 'next') => `scenario.${props.scenario?.id}.${part}` as MessageKey
+const announcement = computed(() =>
+  props.scenario === null ? '' : props.deviated ? `${t(key('title'))} ${t('scenario.changed')}` : t(key('title')),
+)
 const sections = computed(() =>
   props.scenario === null
     ? []
@@ -24,44 +29,42 @@ const sections = computed(() =>
 </script>
 
 <template>
-  <section
-    class="scenario-note"
-    data-verify-unit="scenario-note"
-    :data-verify-state="scenario ? 'ready' : 'empty'"
-    :data-verify-scenario="scenario?.id ?? ''"
-    :data-verify-deviated="scenario !== null && deviated ? 'true' : 'false'"
-    :hidden="scenario === null"
-  >
-    <div class="box">
-      <button
-        v-if="scenario"
-        type="button"
-        class="close"
-        data-action="close"
-        :aria-label="t('scenario.close')"
-        @click="emit('close')"
-      >
-        <span aria-hidden="true">×</span>
-      </button>
-      <div role="status" aria-live="polite">
-        <template v-if="scenario">
-          <h3 class="note-title">{{ t(key('title')) }}</h3>
-          <div class="sections">
-            <div v-for="sec in sections" :key="sec.label" class="section">
-              <h4>{{ sec.label }}</h4>
-              <p>{{ sec.text }}</p>
-            </div>
+  <div class="scenario-note-wrap">
+    <section
+      class="scenario-note"
+      data-verify-unit="scenario-note"
+      :data-verify-state="scenario ? 'ready' : 'empty'"
+      :data-verify-scenario="scenario?.id ?? ''"
+      :data-verify-deviated="scenario !== null && deviated ? 'true' : 'false'"
+      :hidden="scenario === null"
+    >
+      <div v-if="scenario" class="box">
+        <button
+          type="button"
+          class="close"
+          data-action="close"
+          :aria-label="t('scenario.close')"
+          @click="emit('close')"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+        <h3 class="note-title">{{ t(key('title')) }}</h3>
+        <div class="sections">
+          <div v-for="sec in sections" :key="sec.label" class="section">
+            <h4>{{ sec.label }}</h4>
+            <p>{{ sec.text }}</p>
           </div>
-          <p v-if="deviated" class="changed">
-            <span>{{ t('scenario.changed') }}</span>
-            <button type="button" class="btn small" data-action="restore" @click="emit('restore')">
-              {{ t('scenario.restore') }}
-            </button>
-          </p>
-        </template>
+        </div>
+        <p v-if="deviated" class="changed">
+          <span>{{ t('scenario.changed') }}</span>
+          <button type="button" class="btn small" data-action="restore" @click="emit('restore')">
+            {{ t('scenario.restore') }}
+          </button>
+        </p>
       </div>
-    </div>
-  </section>
+    </section>
+    <p class="sr-only" role="status" aria-live="polite" aria-atomic="true">{{ announcement }}</p>
+  </div>
 </template>
 
 <style scoped>
