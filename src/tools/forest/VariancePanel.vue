@@ -62,6 +62,8 @@ const error = ref<DtErrorCode | undefined>(undefined)
 const progress = ref({ done: 0, total: REPLICATES })
 const result = shallowRef<Measured | null>(null)
 const cancelled = ref(false)
+/** Number of measurements started so far (never reset): lets a test tell one start from two. */
+const runs = ref(0)
 let token = 0
 let cancelFn: (() => void) | null = null
 
@@ -77,6 +79,7 @@ function measure(): void {
   if (spec === null || run.value === 'loading') return
   const key = props.specKey
   const tk = ++token
+  runs.value++
   run.value = 'loading'
   error.value = undefined
   cancelled.value = false
@@ -109,6 +112,8 @@ function measure(): void {
     },
   )
 }
+// the scenario action `measureVariance` starts a measurement from the parent view
+defineExpose({ measure })
 function cancel(): void {
   if (run.value !== 'loading') return
   token++ // the pending run is obsolete: its (cancelled) promise is ignored
@@ -169,6 +174,7 @@ const xText = (m: Measured) => `(${fmtValue(lang.value, Number(m.xStar[0].toFixe
     data-verify-unit="variance"
     :data-verify-state="unitState"
     :data-verify-count="result ? 1 : 0"
+    :data-verify-runs="runs"
     :data-verify-error="unitState === 'error' ? error : undefined"
     :data-verify-sigma2="unitState === 'ready' && shown ? attrNumber(shown.sigma2) : undefined"
     :data-verify-rho="unitState === 'ready' && shown ? (shown.rho === null ? 'none' : attrNumber(shown.rho)) : undefined"

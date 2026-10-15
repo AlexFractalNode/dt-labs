@@ -12,7 +12,7 @@ import { candidateKey, candidates, type Candidate } from '../../src/core/splits'
 import { DEFAULT_TREE_PARAMS, fitTree, nLeaves, predict, type TreeParams } from '../../src/core/tree'
 import { measureVariance } from '../../src/core/variance'
 import { parseComplexityQuery } from '../../src/tools/complexity/state'
-import { parseForestQuery } from '../../src/tools/forest/state'
+import { EXAMPLE_PROBAS, parseForestQuery } from '../../src/tools/forest/state'
 import { scenarioById } from '../../src/tools/scenarios'
 import { parseSplitsQuery } from '../../src/tools/splits/state'
 
@@ -196,13 +196,6 @@ describe('complexity scenarios', () => {
     expect(nLeaves(pruneTree(full, 0.5))).toBe(2)
   })
 })
-
-/** The three trees of the vote example panel (ForestView), class-1 probabilities 0.51 / 0.51 / 0.01. */
-const EXAMPLE_PROBAS = [
-  [0.49, 0.51],
-  [0.49, 0.51],
-  [0.99, 0.01],
-]
 
 function forestOf(id: string) {
   const { state, problems } = parseForestQuery(scenarioById(id)!.query)

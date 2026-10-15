@@ -76,7 +76,7 @@ const sections = computed(() =>
   color: var(--text);
   padding: 0.6rem 2.6rem 0.6rem 0.9rem;
   border-radius: 4px;
-  margin: 0.5rem 0;
+  margin: 0.6rem 0 0;
 }
 .close {
   position: absolute;

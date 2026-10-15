@@ -18,15 +18,19 @@ import GridLayer from '../../ui/GridLayer.vue'
 import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
 import RefBadge from '../../ui/RefBadge.vue'
+import ScenarioBar from '../../ui/ScenarioBar.vue'
+import ScenarioNote from '../../ui/ScenarioNote.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import { createJobClient } from '../../worker/client'
 import type { ForestResult } from '../../worker/jobs'
+import { writeToolQuery } from '../scenarioUrl'
+import { useScenario } from '../useScenario'
 import ForestParamsPanel from './ForestParams.vue'
 import OobCurve, { type CvReference } from './OobCurve.vue'
 import TreeGallery from './TreeGallery.vue'
 import VariancePanel, { type MeasureSpec } from './VariancePanel.vue'
 import VotePanel from './VotePanel.vue'
-import { DEFAULT_FOREST_STATE, oobSteps, parseForestQuery, toForestQuery, type ForestState } from './state'
+import { DEFAULT_FOREST_STATE, EXAMPLE_PROBAS, oobSteps, parseForestQuery, toForestQuery, type ForestState } from './state'
 
 const DEBOUNCE_MS = 150
 /** Side of the probability grid behind the regions (Spec 4.3). */
@@ -36,12 +40,6 @@ const N_CLASSES = 2
 const CLASS_COLORS = ['var(--c-class-0)', 'var(--c-class-1)']
 const FALLBACK_HEX = ['#0072b2', '#d55e00']
 const CLASS_NAMES = ['0', '1']
-/** The textbook example for hard vote vs average: three trees with these class-1 probabilities (Spec 4.3). */
-const EXAMPLE_PROBAS = [
-  [0.49, 0.51],
-  [0.49, 0.51],
-  [0.99, 0.01],
-]
 
 const { lang, t } = useI18n()
 const route = useRoute()
@@ -50,34 +48,20 @@ const route = useRoute()
 const st = reactive<ForestState>({ ...DEFAULT_FOREST_STATE })
 const urlProblems = ref<string[]>([])
 
-function initFromUrl(): void {
+function adoptQuery(): void {
   const { state, problems } = parseForestQuery(Object.fromEntries(route.value.params))
   urlProblems.value = problems
   Object.assign(st, state)
 }
-initFromUrl()
-// A new route state (nav link, back/forward) restarts from the address; our own URL updates do not touch it.
-watch(() => route.value, initFromUrl)
+adoptQuery()
 
 function onUpdate(patch: Partial<ForestState>): void {
   Object.assign(st, patch)
 }
 
 const query = computed(() => toForestQuery(st))
-watch(query, (q) => {
-  if (typeof window === 'undefined') return
-  try {
-    // replaceState: no hashchange, no history entry; keeps the `lang` parameter of the live address
-    const live = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
-    const next = new URLSearchParams(q)
-    const l = live.get('lang')
-    if (l) next.set('lang', l)
-    const qs = next.toString()
-    history.replaceState(history.state, '', `#/forest${qs ? `?${qs}` : ''}`)
-  } catch {
-    /* history unavailable: the view still works */
-  }
-})
+// replaceState: no hashchange, no history entry; keeps `lang` and a valid `scenario` of the live address
+watch(query, (q) => writeToolQuery('forest', q))
 
 // ---- data ----------------------------------------------------------------------------------------------------------
 interface DataSet {
@@ -255,6 +239,19 @@ watch(
   },
 )
 
+/** Adopts the address. The example mode and x* are not part of it, so every adoption resets them (Spec 3.2). */
+function initFromUrl(): void {
+  adoptQuery()
+  voteExample.value = false
+  xStar.value = centreOf(data.value.bounds)
+}
+// A new route state (nav link, back/forward, scenario) restarts from the address; our own URL updates do not touch it.
+watch(() => route.value, initFromUrl)
+
+function showVoteExample(): void {
+  voteExample.value = true
+}
+
 function onPlotClick(p: { x: number; y: number }): void {
   const b = (snap.value?.data ?? data.value).bounds
   const clampTo = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
@@ -288,6 +285,14 @@ const measureSpec = computed<MeasureSpec | null>(() => ({
   params: forestParams.value,
 }))
 const measureKey = computed(() => `${forestKey.value}|${xStar.value[0]}|${xStar.value[1]}`)
+
+// ---- scenarios -----------------------------------------------------------------------------------------------------
+const varianceRef = ref<InstanceType<typeof VariancePanel> | null>(null)
+const scenario = useScenario('forest', () => query.value, {
+  voteExample: showVoteExample,
+  measureVariance: () => varianceRef.value?.measure(),
+})
+const noticeProblems = computed(() => [...new Set([...urlProblems.value, ...scenario.problems.value])])
 </script>
 
 <template>
@@ -300,7 +305,17 @@ const measureKey = computed(() => `${forestKey.value}|${xStar.value[0]}|${xStar.
       <p class="lead">{{ t('forest.lead') }}</p>
     </header>
 
-    <UrlNotice :problems="urlProblems" />
+    <UrlNotice :problems="noticeProblems" />
+
+    <div class="scenario-area">
+      <ScenarioBar tool="forest" :active-id="scenario.active.value?.id ?? null" @apply="scenario.apply" />
+      <ScenarioNote
+        :scenario="scenario.active.value"
+        :deviated="scenario.deviated.value"
+        @close="scenario.dismiss"
+        @restore="scenario.restore"
+      />
+    </div>
 
     <div class="layout">
       <div class="side">
@@ -370,7 +385,7 @@ const measureKey = computed(() => `${forestKey.value}|${xStar.value[0]}|${xStar.
             :feature-names="featureNames"
             :class-names="CLASS_NAMES"
             @update:x-star="onXStar"
-            @example="voteExample = true"
+            @example="showVoteExample"
             @point="voteExample = false"
           />
         </section>
@@ -403,7 +418,7 @@ const measureKey = computed(() => `${forestKey.value}|${xStar.value[0]}|${xStar.
 
         <section class="panel variance" aria-labelledby="fo-var-title">
           <h3 id="fo-var-title" class="panel-title">{{ t('forest.variance.title') }}</h3>
-          <VariancePanel :spec="measureSpec" :spec-key="measureKey" :B="snap?.B ?? st.B" :identical="identical" />
+          <VariancePanel ref="varianceRef" :spec="measureSpec" :spec-key="measureKey" :B="snap?.B ?? st.B" :identical="identical" />
         </section>
       </div>
     </div>

@@ -29,11 +29,15 @@ import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
 import RefBadge from '../../ui/RefBadge.vue'
 import RegionLayer from '../../ui/RegionLayer.vue'
+import ScenarioBar from '../../ui/ScenarioBar.vue'
+import ScenarioNote from '../../ui/ScenarioNote.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import type { DiagramNode } from '../../ui/treeLayout'
 import { createJobClient } from '../../worker/client'
+import { writeToolQuery } from '../scenarioUrl'
 import { majority } from '../splits/format'
+import { useScenario } from '../useScenario'
 import ParamPanel from './ParamPanel.vue'
 import PruningPath from './PruningPath.vue'
 import {
@@ -74,20 +78,13 @@ function onUpdate(patch: Partial<ComplexityState>): void {
 }
 
 const query = computed(() => toComplexityQuery(st))
-watch(query, (q) => {
-  if (typeof window === 'undefined') return
-  try {
-    // replaceState: no hashchange, no history entry; keeps the `lang` parameter of the live address
-    const live = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
-    const next = new URLSearchParams(q)
-    const l = live.get('lang')
-    if (l) next.set('lang', l)
-    const qs = next.toString()
-    history.replaceState(history.state, '', `#/complexity${qs ? `?${qs}` : ''}`)
-  } catch {
-    /* history unavailable: the view still works */
-  }
-})
+// replaceState: no hashchange, no history entry; keeps `lang` and a valid `scenario` of the live address
+watch(query, (q) => writeToolQuery('complexity', q))
+
+// ---- scenarios -----------------------------------------------------------------------------------------------------
+// The complexity lab has no start action.
+const scenario = useScenario('complexity', () => query.value, {})
+const noticeProblems = computed(() => [...new Set([...urlProblems.value, ...scenario.problems.value])])
 
 // ---- data ----------------------------------------------------------------------------------------------------------
 interface DataSet {
@@ -392,7 +389,17 @@ const modelFailed = computed(() => shown.value === null)
       <p class="lead">{{ t('complexity.lead') }}</p>
     </header>
 
-    <UrlNotice :problems="urlProblems" />
+    <UrlNotice :problems="noticeProblems" />
+
+    <div class="scenario-area">
+      <ScenarioBar tool="complexity" :active-id="scenario.active.value?.id ?? null" @apply="scenario.apply" />
+      <ScenarioNote
+        :scenario="scenario.active.value"
+        :deviated="scenario.deviated.value"
+        @close="scenario.dismiss"
+        @restore="scenario.restore"
+      />
+    </div>
 
     <div class="layout">
       <div class="side">

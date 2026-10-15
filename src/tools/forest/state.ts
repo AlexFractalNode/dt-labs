@@ -17,6 +17,13 @@ export interface ForestState {
   leaf: number
 }
 
+/** The textbook example for hard vote vs average: three trees with these class-1 probabilities (Spec 4.3). Read-only. */
+export const EXAMPLE_PROBAS: number[][] = [
+  [0.49, 0.51],
+  [0.49, 0.51],
+  [0.99, 0.01],
+]
+
 export const DEFAULT_FOREST_STATE: ForestState = {
   preset: 'moons',
   n: 200,

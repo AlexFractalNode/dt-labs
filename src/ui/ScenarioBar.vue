@@ -42,7 +42,6 @@ const key = (s: Scenario, part: 'title' | 'short') => `scenario.${s.id}.${part}`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.6rem;
-  margin: 0.5rem 0;
 }
 .card {
   font: inherit;
