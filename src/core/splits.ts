@@ -44,6 +44,11 @@ function distinctSorted(values: number[]): number[] {
   return [...new Set(values)].sort((a, b) => a - b)
 }
 
+/** Routing rule of a split: `x <= t` (threshold) or `x == code` (category) goes left. */
+export function goesLeft(c: Pick<Candidate, 'kind' | 'value'>, x: number): boolean {
+  return c.kind === 'threshold' ? x <= c.value : x === c.value
+}
+
 export function candidates(ds: ClassDataset, rows: number[], criterion: Criterion, nTotal: number): Candidate[] {
   const n = rows.length
   if (n === 0) return []
@@ -51,10 +56,10 @@ export function candidates(ds: ClassDataset, rows: number[], criterion: Criterio
   const parentImpurity = impurity(criterion, parent)
   const out: Candidate[] = []
 
-  const push = (feature: number, kind: Candidate['kind'], value: number, goesLeft: (r: number) => boolean) => {
+  const push = (feature: number, kind: Candidate['kind'], value: number) => {
     const leftRows: number[] = []
     const rightRows: number[] = []
-    for (const r of rows) (goesLeft(r) ? leftRows : rightRows).push(r)
+    for (const r of rows) (goesLeft({ kind, value }, ds.X[r][feature]) ? leftRows : rightRows).push(r)
     const left = countClasses(ds, leftRows)
     const right = countClasses(ds, rightRows)
     const nLeft = leftRows.length
@@ -83,11 +88,11 @@ export function candidates(ds: ClassDataset, rows: number[], criterion: Criterio
     if (f.kind === 'numeric') {
       for (let i = 0; i + 1 < values.length; i++) {
         const t = (values[i] + values[i + 1]) / 2
-        push(j, 'threshold', t, (r) => ds.X[r][j] <= t)
+        push(j, 'threshold', t)
       }
     } else {
       const codes = values.length === 2 ? values.slice(0, 1) : values
-      for (const c of codes) push(j, 'category', c, (r) => ds.X[r][j] === c)
+      for (const c of codes) push(j, 'category', c)
     }
   })
 

@@ -52,7 +52,7 @@ function expectDtError(fn: () => unknown, code: string): DtError {
 }
 
 describe('fitTree (sklearn-compatible)', () => {
-  it.each(cases.filter((c) => c.tieNodes.length === 0 && c.params.ccpAlpha === 0).map((c) => [c.name, c]))(
+  it.each(cases.filter((c) => c.tieNodes.length === 0).map((c) => [c.name, c]))(
     'matches sklearn for %s',
     (_name, c) => {
       const tree = fitCase(c)
@@ -65,7 +65,15 @@ describe('fitTree (sklearn-compatible)', () => {
   it.each(cases.filter((c) => c.tieNodes.length > 0).map((c) => [c.name, c]))(
     'matches sklearn with the tie oracle for %s',
     (_name, c) => {
-      const tree = fitCase(c, { tieOracle: oracleFrom(c.sk) })
+      const oracle = oracleFrom(c.sk)
+      const asked: number[] = []
+      const tree = fitCase(c, {
+        tieOracle: (nodeId) => {
+          asked.push(nodeId)
+          return oracle(nodeId)
+        },
+      })
+      expect(asked.sort((a, b) => a - b)).toEqual([...c.tieNodes].sort((a: number, b: number) => a - b))
       expectTreeEquals(tree, c.sk)
       expectAllClose(featureImportances(tree), c.sk.importances, 'importances')
     },
@@ -155,15 +163,24 @@ describe('fitTree (sklearn-compatible)', () => {
     expect(featureImportances(tree)).toEqual([0])
   })
 
-  it('rejects ccpAlpha > 0 until pruning exists, and bad parameters', () => {
+  it('prunes with ccpAlpha > 0 like sklearn', () => {
     const c = byName('moons_ccp002')
-    expectDtError(() => fitCase(c), 'BAD_PARAM')
+    expect(c.params.ccpAlpha).toBe(0.02)
+    const pruned = fitCase(c)
+    const full = fitCase({ ...c, params: { ...c.params, ccpAlpha: 0 } })
+    expect(nLeaves(pruned)).toBeLessThan(nLeaves(full))
+    expectTreeEquals(pruned, c.sk)
+  })
+
+  it('rejects bad parameters', () => {
     const X = [[0], [1]]
     const y = [0, 1]
     expectDtError(() => fitTree(X, y, 2, { ...DEFAULT_TREE_PARAMS, minSamplesLeaf: 0 }), 'BAD_PARAM')
     expectDtError(() => fitTree(X, y, 2, { ...DEFAULT_TREE_PARAMS, minSamplesSplit: 1 }), 'BAD_PARAM')
     expectDtError(() => fitTree(X, y, 2, { ...DEFAULT_TREE_PARAMS, maxDepth: 0 }), 'BAD_PARAM')
     expectDtError(() => fitTree(X, y, 2, { ...DEFAULT_TREE_PARAMS, maxFeatures: 2 }), 'BAD_PARAM')
+    expectDtError(() => fitTree(X, y, 2, { ...DEFAULT_TREE_PARAMS, ccpAlpha: -0.1 }), 'BAD_PARAM')
+    expectDtError(() => fitTree(X, y, 2, { ...DEFAULT_TREE_PARAMS, ccpAlpha: Number.NaN }), 'BAD_PARAM')
     expectDtError(() => fitTree(X, [0, 2], 2, DEFAULT_TREE_PARAMS), 'BAD_PARAM')
     expectDtError(() => fitTree(X, y, 2, DEFAULT_TREE_PARAMS, { sampleWeight: [1, -1] }), 'BAD_PARAM')
     expectDtError(() => fitTree([], [], 2, DEFAULT_TREE_PARAMS), 'EMPTY_DATA')

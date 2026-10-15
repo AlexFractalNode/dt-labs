@@ -7,6 +7,7 @@
  */
 import { DtError } from './errors'
 import { mdi } from './importance'
+import { pruneTree } from './prune'
 import { createRng } from './rng'
 
 export interface TreeParams {
@@ -97,8 +98,6 @@ function validateParams(p: TreeParams, nFeatures: number): void {
   if (!isPositiveInt(p.minSamplesLeaf)) throw badParam('minSamplesLeaf')
   if (!Number.isFinite(p.minImpurityDecrease) || p.minImpurityDecrease < 0) throw badParam('minImpurityDecrease')
   if (!Number.isFinite(p.ccpAlpha) || p.ccpAlpha < 0) throw badParam('ccpAlpha')
-  // TODO(Task 6): cost-complexity pruning.
-  if (p.ccpAlpha > 0) throw badParam('ccpAlpha')
   if (p.maxFeatures !== null && (!isPositiveInt(p.maxFeatures) || p.maxFeatures > nFeatures)) {
     throw badParam('maxFeatures')
   }
@@ -120,6 +119,7 @@ interface StackRecord {
 
 /**
  * Fit a CART classifier like sklearn's DecisionTreeClassifier (Spec 3.3).
+ * With `ccpAlpha > 0` the grown tree is pruned like sklearn (`pruneTree`).
  * Ties between candidates: features in index order, thresholds ascending, strict proxy comparison
  * (first wins). With `tieOracle`, nodes whose proxy maximum is attained more than once (relative
  * 1e-12) take the oracle's split if it is in that argmax set, otherwise `DtError('TIE_ORACLE')`.
@@ -323,7 +323,8 @@ export function fitTree(
       stack.push({ rows: leftRows, depth: depth + 1, parent: nodeId, isLeft: true, impurity: impLeft })
     }
   }
-  return tree
+  // sklearn prunes the fully grown tree afterwards (`_prune_tree`); ccpAlpha 0 keeps it unchanged
+  return pruneTree(tree, params.ccpAlpha)
 }
 
 /** Leaf index reached by `x`; features are cast to float32 like sklearn's `apply`. */
