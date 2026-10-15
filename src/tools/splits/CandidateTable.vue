@@ -16,6 +16,8 @@ const props = defineProps<{
   node: ManualNode | null
   /** Candidate key applied at this node, if any. */
   appliedKey: string | null
+  /** True for the unchanged "eight cases" preset: only then the tie note quotes the notebook example. */
+  eightExample?: boolean
 }>()
 const emit = defineEmits<{ apply: [key: string] }>()
 const { lang, t } = useI18n()
@@ -42,6 +44,8 @@ const multiway = computed(() => {
 })
 const state = computed<'empty' | 'ready'>(() => (rows.value.length === 0 ? 'empty' : 'ready'))
 const hasTie = computed(() => rows.value.some((r) => r.c.isTie))
+/** A pure node: sklearn does not split it, so there is no "best" and no tie (core sets neither flag). */
+const isPure = computed(() => props.node !== null && props.node.impurity <= 0)
 </script>
 
 <template>
@@ -126,8 +130,11 @@ const hasTie = computed(() => rows.value.some((r) => r.c.isTie))
           </tbody>
         </table>
       </div>
+      <p v-if="isPure" class="note pure-note" data-note="pure">{{ t('splits.cand.pure') }}</p>
       <p v-if="multiway.length > 0" class="note" data-note="multiway">{{ t('splits.cand.multiwayNote') }}</p>
-      <p v-if="hasTie" class="note tie-note" data-note="tie">{{ t('splits.cand.tieNote') }}</p>
+      <p v-if="hasTie" class="note tie-note" data-note="tie">
+        {{ t('splits.cand.tieNote') }}<template v-if="eightExample"> {{ t('splits.cand.tieNoteEight') }}</template>
+      </p>
     </template>
   </section>
 </template>
@@ -237,6 +244,11 @@ tr.multiway > td {
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--text-muted);
+}
+.pure-note {
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--border);
+  color: var(--text);
 }
 .tie-note {
   padding-left: 0.6rem;

@@ -96,7 +96,8 @@ export function candidates(ds: ClassDataset, rows: number[], criterion: Criterio
     }
   })
 
-  if (out.length > 0) {
+  // A pure node has nothing to improve: every gain is 0, so "best"/"tie" would be meaningless (sklearn does not split it).
+  if (out.length > 0 && parentImpurity > 0) {
     let bestGain = -Infinity
     for (const c of out) if (c.gain > bestGain) bestGain = c.gain
     const near = out.filter((c) => Math.abs(c.gain - bestGain) <= TIE_TOLERANCE)

@@ -3,7 +3,7 @@ import { loadGolden } from '../helpers/golden'
 import { PRESETS } from '../../src/core/presets'
 import type { ClassDataset } from '../../src/core/dataset'
 import { gini, impurity, misclass, type Criterion } from '../../src/core/impurity'
-import { bestCandidate, candidateKey, candidates, multiwayGain } from '../../src/core/splits'
+import { bestCandidate, candidateKey, candidates, goesLeft, multiwayGain } from '../../src/core/splits'
 import { mdi } from '../../src/core/importance'
 
 const golden = loadGolden('textbook')
@@ -78,6 +78,22 @@ describe('splits', () => {
     expect(cands.filter((c) => c.feature === 3)).toHaveLength(1)
     expect(cands.some((c) => c.isTie)).toBe(false)
     expect(bestCandidate(cands)!.feature).toBe(2)
+  })
+
+  it('sets neither best nor tie on a pure node', () => {
+    const ds = PRESETS.eight
+    const root = candidates(ds, range(8), 'entropy', 8)
+    const split = bestCandidate(root)!
+    const left = range(8).filter((r) => goesLeft(split, ds.X[r][split.feature]))
+    const counts = new Array<number>(ds.classNames.length).fill(0)
+    for (const r of left) counts[ds.y[r]]++
+    expect(counts.filter((c) => c > 0)).toHaveLength(1) // the left child is pure
+    for (const criterion of ['entropy', 'gini', 'misclass'] as Criterion[]) {
+      const cands = candidates(ds, left, criterion, 8)
+      expect(cands.length).toBeGreaterThan(0)
+      expect(cands.some((c) => c.isBest || c.isTie)).toBe(false)
+      expect(bestCandidate(cands)).toBeNull()
+    }
   })
 
   it('matches exercise values', () => {

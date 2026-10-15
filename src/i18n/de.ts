@@ -77,7 +77,7 @@ const de = {
       presetLabel: 'Beispieldatensatz',
       preset: { speed: 'Geschwindigkeit', eight: 'Acht Fälle', weather: 'Wetter' },
       upload: 'Eigene CSV laden',
-      uploadHint: 'Bis 200 Zeilen und 8 Merkmale, die letzte Spalte ist die Klasse. Semikolon und Dezimalkomma werden erkannt; die Datei bleibt im Browser.',
+      uploadHint: 'Bis 200 Zeilen, 8 Merkmale und 6 Klassen, die letzte Spalte ist die Klasse. Semikolon und Dezimalkomma werden erkannt; die Datei bleibt im Browser.',
       source: { preset: 'Beispieldatensatz „{name}“', file: 'Datei „{name}“', edited: '{source}, bearbeitet' },
       cases: '{n} Fälle',
       case: 'Fall',
@@ -94,7 +94,7 @@ const de = {
     error: {
       EMPTY_DATA: 'Es werden mindestens zwei Fälle und ein Merkmal gebraucht.',
       CSV_PARSE: 'Die Datei lässt sich nicht als Tabelle lesen (Zeile {line}).',
-      CSV_LIMIT: 'Die Daten sind zu groß: höchstens 200 Zeilen, 8 Merkmale und 1 MB.',
+      CSV_LIMIT: 'Die Daten sind zu groß: höchstens 200 Zeilen, 8 Merkmale, 6 Klassen und 1 MB.',
       MISSING_VALUES: 'Es fehlt ein Wert in Fall {row}, Spalte „{column}“. Ergänze ihn in der Tabelle.',
       SINGLE_CLASS: 'Alle Fälle haben dieselbe Klasse. Für einen Baum braucht es mindestens zwei Klassen; ändere die Klasse einzelner Fälle.',
       generic: 'Die Daten konnten nicht verarbeitet werden.',
@@ -141,7 +141,9 @@ const de = {
       multiway: 'Mehrweg: eine Gruppe je Kategorie',
       notSelectable: 'nur Vergleich',
       multiwayNote: 'Die Mehrweg-Zeile zeigt den Gewinn, wenn jede Kategorie ein eigenes Kind bekäme. Sie dient nur dem Vergleich und lässt sich nicht wählen.',
-      tieNote: 'Gleichstand: Mehrere Fragen haben denselben Gewinn. Dieses Werkzeug nimmt zuerst das erste Merkmal, dann die kleinere Schwelle. sklearn wählt je nach random_state zufällig; im Beispiel „Acht Fälle“ fällt die Wahl im Notebook (Zelle 125, random_state=1) auf a2 ≤ 2,5.',
+      tieNote: 'Gleichstand: Mehrere Fragen haben denselben Gewinn. Dieses Werkzeug nimmt zuerst das erste Merkmal, dann die kleinere Schwelle. sklearn wählt je nach random_state zufällig.',
+      tieNoteEight: 'Im Beispiel „Acht Fälle“ fällt die Wahl im Notebook (Zelle 125, random_state=1) auf a2 ≤ 2,5.',
+      pure: 'Dieser Knoten ist rein – sklearn teilt hier nicht. Die Fragen sind nur zum Ausprobieren; „beste“ und „Gleichstand“ gibt es bei reinen Knoten nicht.',
     },
     mdi: {
       title: 'Wichtigkeit der Merkmale (MDI)',

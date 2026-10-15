@@ -6,7 +6,7 @@
  */
 import { computed, ref, watch } from 'vue'
 import { parseCsv } from '../../core/csv'
-import { datasetToRows, rowsToDataset, type ClassDataset } from '../../core/dataset'
+import { checkTableLimits, datasetToRows, rowsToDataset, type ClassDataset } from '../../core/dataset'
 import { DtError, type DtErrorCode } from '../../core/errors'
 import type { Criterion } from '../../core/impurity'
 import { autoChoices, growManual, manualImportances, setChoice, tracePath } from '../../core/manual'
@@ -220,6 +220,8 @@ async function onFile(e: Event): Promise<void> {
     if (f.size > MAX_BYTES) throw new DtError('CSV_LIMIT', { bytes: f.size, maxBytes: MAX_BYTES })
     const table = parseCsv(await readText(f))
     if (token !== loadToken) return
+    // Reject an oversized table now, so it is never shown as hundreds of inputs in an error state.
+    checkTableLimits(table.columns.length, table.rows.length)
     header.value = table.columns
     rows.value = table.rows.map((r) => r.map((c) => (c === null ? '' : String(c))))
     fileName.value = f.name
@@ -289,7 +291,10 @@ function onTrace(j: number, value: string): void {
   traceValues.value = traceValues.value.map((v, i) => (i === j ? value : v))
 }
 const canAct = computed(() => ds.value !== null && focusNode.value !== null)
-const canBest = computed(() => canAct.value && (focusNode.value?.candidates.length ?? 0) > 0)
+// "Best split" only for impure nodes: a pure node has no best candidate (sklearn does not split it).
+const canBest = computed(
+  () => canAct.value && focusNode.value !== null && focusNode.value.impurity > 0 && bestCandidate(focusNode.value.candidates) !== null,
+)
 const canRemove = computed(() => focusNode.value?.split != null)
 
 // ---- URL sync ------------------------------------------------------------------------------------------------------
@@ -473,7 +478,13 @@ const formatShare = (v: number) => fmt(lang.value, v, 3)
       <section class="panel cands" aria-labelledby="splits-cand-title">
         <h3 id="splits-cand-title" class="panel-title">{{ t('splits.cand.title') }}</h3>
         <p v-if="focusNode" class="muted small focus-line" data-verify-unit="focus-node" :data-verify-focus="focus">{{ focusTitle }}</p>
-        <CandidateTable :ds="ds" :node="focusNode" :applied-key="appliedKey" @apply="applySplit" />
+        <CandidateTable
+          :ds="ds"
+          :node="focusNode"
+          :applied-key="appliedKey"
+          :eight-example="presetId === 'eight' && !custom"
+          @apply="applySplit"
+        />
       </section>
     </div>
 

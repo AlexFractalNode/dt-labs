@@ -118,6 +118,17 @@ test('single-class CSV reports SINGLE_CLASS', async ({ page }) => {
   await expect(data).toHaveAttribute('data-verify-error', 'SINGLE_CLASS')
 })
 
+test('CSV with more than 200 rows reports CSV_LIMIT and renders no table', async ({ page }) => {
+  await open(page)
+  await page.locator('input[data-field="csv-file"]').setInputFiles(fixture('too-many-rows.csv'))
+  const data = page.locator(unit('splits-data'))
+  await expect(data).toHaveAttribute('data-verify-state', 'error', T)
+  await expect(data).toHaveAttribute('data-verify-error', 'CSV_LIMIT')
+  await expect(data).toHaveAttribute('data-verify-count', '0')
+  await expect(page.locator(`${unit('splits-data')} input[data-row]`)).toHaveCount(0)
+  await expect(page.locator(`${unit('splits-data')} [role="alert"]`)).toContainText('200 Zeilen')
+})
+
 test('CSV with a missing value reports MISSING_VALUES', async ({ page }) => {
   await open(page)
   await page.locator('input[data-field="csv-file"]').setInputFiles(fixture('missing.csv'))
@@ -178,9 +189,29 @@ test('weather preset explains Quinlan original and the course file', async ({ pa
   await expect(page.locator(`${unit('split-candidates')} tr[data-verify-multiway]`)).not.toHaveCount(0)
 })
 
-test('tie hint mentions sklearn and random_state', async ({ page }) => {
+test('tie hint mentions sklearn and random_state, the notebook example only for the eight preset', async ({ page }) => {
   await open(page)
   await expect(page.locator('[data-note="tie"]')).toContainText('random_state')
+  await expect(page.locator('[data-note="tie"]')).toContainText('Acht Fälle')
+})
+
+test('pure node: no best/tie flags, pure hint, "Besten Split" disabled', async ({ page }) => {
+  await open(page, 'preset=eight&grow=auto')
+  await expect(page.locator(unit('tree'))).toHaveAttribute('data-verify-count', '5', T)
+  // Node ids are preorder positions: 1 = the pure left child of the root (a1 <= 2.5).
+  await page.locator(`${unit('tree')} [data-node-id="1"]`).click()
+  const cands = page.locator(unit('split-candidates'))
+  await expect(cands).toHaveAttribute('data-verify-state', 'ready', T)
+  await expect(page.locator(`${unit('split-candidates')} tr[data-verify-key]`).first()).toBeVisible()
+  await expect(page.locator(`${unit('split-candidates')} tr[data-verify-tie="true"]`)).toHaveCount(0)
+  await expect(page.locator(`${unit('split-candidates')} tr[data-verify-best="true"]`)).toHaveCount(0)
+  await expect(page.locator('[data-note="tie"]')).toHaveCount(0)
+  await expect(page.locator('[data-note="pure"]')).toContainText('rein')
+  await expect(page.locator('[data-action="best-split"]')).toBeDisabled()
+  // an impure node still offers it
+  await page.locator(`${unit('tree')} [data-node-id="0"]`).click()
+  await expect(page.locator('[data-action="best-split"]')).toBeEnabled()
+  await expect(page.locator('[data-note="pure"]')).toHaveCount(0)
 })
 
 test('English UI and no horizontal scroll at 375 px', async ({ page }) => {

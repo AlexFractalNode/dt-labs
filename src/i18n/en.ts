@@ -81,7 +81,7 @@ const en: Messages<typeof de> = {
       presetLabel: 'Example data set',
       preset: { speed: 'Speed', eight: 'Eight cases', weather: 'Weather' },
       upload: 'Load own CSV',
-      uploadHint: 'Up to 200 rows and 8 features; the last column is the class. Semicolon and decimal comma are detected; the file stays in your browser.',
+      uploadHint: 'Up to 200 rows, 8 features and 6 classes; the last column is the class. Semicolon and decimal comma are detected; the file stays in your browser.',
       source: { preset: 'Example data set "{name}"', file: 'File "{name}"', edited: '{source}, edited' },
       cases: '{n} cases',
       case: 'Case',
@@ -98,7 +98,7 @@ const en: Messages<typeof de> = {
     error: {
       EMPTY_DATA: 'At least two cases and one feature are needed.',
       CSV_PARSE: 'The file cannot be read as a table (line {line}).',
-      CSV_LIMIT: 'The data is too large: at most 200 rows, 8 features and 1 MB.',
+      CSV_LIMIT: 'The data is too large: at most 200 rows, 8 features, 6 classes and 1 MB.',
       MISSING_VALUES: 'A value is missing in case {row}, column "{column}". Fill it in the table.',
       SINGLE_CLASS: 'All cases have the same class. A tree needs at least two classes; change the class of some cases.',
       generic: 'The data could not be processed.',
@@ -145,7 +145,9 @@ const en: Messages<typeof de> = {
       multiway: 'Multiway: one group per category',
       notSelectable: 'comparison only',
       multiwayNote: 'The multiway row shows the gain if every category got its own child. It is for comparison only and cannot be chosen.',
-      tieNote: 'Tie: several questions have the same gain. This tool takes the first feature first, then the smaller threshold. sklearn picks at random depending on random_state; in the "Eight cases" example the notebook (cell 125, random_state=1) picks a2 ≤ 2.5.',
+      tieNote: 'Tie: several questions have the same gain. This tool takes the first feature first, then the smaller threshold. sklearn picks at random depending on random_state.',
+      tieNoteEight: 'In the "Eight cases" example the notebook (cell 125, random_state=1) picks a2 ≤ 2.5.',
+      pure: 'This node is pure – sklearn does not split here. The questions are for experimenting only; pure nodes have no "best" or "tie".',
     },
     mdi: {
       title: 'Feature importance (MDI)',
