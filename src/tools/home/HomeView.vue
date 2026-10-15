@@ -2,6 +2,7 @@
 import { useI18n, type MessageKey } from '../../i18n'
 import { buildHash, type Route } from '../../urlState'
 import RefBadge from '../../ui/RefBadge.vue'
+import { TOOL_REFS } from '../toolRefs'
 
 const { t } = useI18n()
 
@@ -10,21 +11,17 @@ interface ToolCard {
   name: MessageKey
   summary: MessageKey
   goal: MessageKey
-  chapter: string
-  code: string
   /** Query of the card link (e.g. the preset the tool opens with). */
   params?: Record<string, string>
 }
 
-// Chapter and notebook-cell references follow the learning goals in Spec §4 (zero-based cell numbers).
+// Chapter and notebook-cell references: TOOL_REFS (shared with the help drawer).
 const TOOLS: ToolCard[] = [
   {
     route: 'splits',
     name: 'nav.splits',
     summary: 'home.tool.splits.summary',
     goal: 'home.tool.splits.goal',
-    chapter: '3–5, 8.4',
-    code: '99–128',
     params: { preset: 'eight' },
   },
   {
@@ -32,16 +29,12 @@ const TOOLS: ToolCard[] = [
     name: 'nav.complexity',
     summary: 'home.tool.complexity.summary',
     goal: 'home.tool.complexity.goal',
-    chapter: '9–11',
-    code: '62, 75–82, 170–212',
   },
   {
     route: 'forest',
     name: 'nav.forest',
     summary: 'home.tool.forest.summary',
     goal: 'home.tool.forest.goal',
-    chapter: '12–13',
-    code: '213–270',
   },
 ]
 </script>
@@ -66,7 +59,7 @@ const TOOLS: ToolCard[] = [
             <span class="goal-label">{{ t('home.goal') }}</span>
             {{ t(tool.goal) }}
           </p>
-          <RefBadge :chapter="tool.chapter" :code="tool.code" />
+          <RefBadge :chapter="TOOL_REFS[tool.route].chapter" :code="TOOL_REFS[tool.route].code" />
           <div class="card-actions">
             <a class="open" :href="buildHash(tool.route, tool.params)">{{ t('home.open', { tool: t(tool.name) }) }}</a>
           </div>
