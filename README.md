@@ -19,7 +19,7 @@ Live site (after the first deployment): <https://alexfractalnode.github.io/dt-la
 |---|---|---|---|
 | Split Workshop (Split-Werkstatt) | `#/splits` | Choose splits step by step, see impurity and gain of every candidate, tie markers, a path tracer, and let the tree grow on its own | `#/splits?preset=eight&grow=auto` (the eight-case example, finished tree) |
 | Complexity Lab (Komplexitäts-Labor) | `#/complexity` | Depth, minimum sizes and cost-complexity pruning; decision regions, cross-validation, validation curve and pruning path | `#/complexity?preset=eight&criterion=entropy&alpha=0.45` |
-| Forest Lab (Forest-Labor) | `#/forest` | Bootstrap trees, tree gallery, vote vs. averaging, OOB score, feature importance and a variance lab (measurement in a Web Worker) | `#/forest?B=100` |
+| Forest Lab (Forest-Labor) | `#/forest` | Bootstrap trees, tree gallery, vote vs. averaging, OOB score and a variance lab (measurement in a Web Worker) | `#/forest?B=100` |
 
 Prefix the routes with the site URL, e.g. `https://alexfractalnode.github.io/dt-labs/#/splits?preset=eight&grow=auto`.
 Invalid URL parameters fall back to a default view and show a notice.
@@ -101,8 +101,10 @@ you compare numbers with the notebook:
   For deep trees the CV scores can differ from the notebook by about ±0.01, because sklearn resolves ties at random.
 - **OOB score.** It is computed over the cases covered by at least one tree, and the number of never-covered cases is
   reported next to it. sklearn silently counts uncovered cases as class 0.
-- **Feature draws (`maxFeatures`).** At each node features are drawn in random order without replacement until `k`
-  non-constant features have been evaluated, like sklearn. Bootstrap counts enter the trees as sample weights.
+- **Feature draws (`maxFeatures`).** At each node features are drawn in random order without replacement, and the
+  draw continues until `k` non-constant features have been evaluated. sklearn also counts drawn constant features
+  towards `k` when `k >= 2`, so the two can differ there. The app's settings (`k = 1` and `k = all`) behave
+  identically. Bootstrap counts enter the trees as sample weights.
 - **`mf = 2` means all features.** The synthetic data sets have two features, so `mf=2` is plain bagging without
   feature subsampling; with bootstrap switched off all trees are identical.
 - **Misclassification error.** Offered in the Split Workshop for teaching only; sklearn has no such criterion, so it
@@ -112,8 +114,9 @@ Regression trees, an information calculator and other items are deliberately not
 
 ## Deployment (GitHub Pages)
 
-`.github/workflows/pages.yml` runs on every push to `main`: material guard, Python checks, unit tests, a build with
-`BASE_PATH=/dt-labs/`, then the deployment of `dist/` to GitHub Pages via GitHub Actions.
+`.github/workflows/pages.yml` runs on every push to `main` and on every pull request: material guard, Python checks,
+unit tests and a build with `BASE_PATH=/dt-labs/`. Only a push to `main` then uploads `dist/` and deploys it to GitHub
+Pages via GitHub Actions; pull requests never deploy.
 
 One-time setup after the first push: in the repository, open **Settings → Pages → Build and deployment** and set
 **Source: GitHub Actions**.
