@@ -8,6 +8,7 @@ import { computed, provide } from 'vue'
 import { scaleLinear } from 'd3-scale'
 import type { Bounds } from '../../core/generators'
 import type { Region } from '../../core/regions'
+import { classIndex } from '../../ui/classStyle'
 import RegionLayer from '../../ui/RegionLayer.vue'
 import { PLOT_SCALES, type PlotScales } from '../../ui/plotScales'
 
@@ -36,7 +37,7 @@ const radius = (c: number) => 2.2 + 0.9 * Math.sqrt(Math.max(1, c))
 const dots = computed(() =>
   props.X.map((p, i) => {
     const c = props.counts[i] ?? 0
-    const cls = props.y[i] % 3
+    const cls = classIndex(props.y[i])
     return { cx: xScale.value(p[0]), cy: yScale.value(p[1]), r: radius(c), hollow: c === 0, cls }
   }),
 )

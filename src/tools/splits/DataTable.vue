@@ -5,6 +5,7 @@
  * rendered as input values only, never as markup.
  */
 import { useI18n } from '../../i18n'
+import { classColor } from '../../ui/classStyle'
 import { displayCell, normalizeCell } from './format'
 
 const props = defineProps<{
@@ -28,7 +29,7 @@ function onChange(e: Event, r: number, c: number) {
   if (value !== props.rows[r][c]) emit('edit', r, c, value)
 }
 const inFocus = (r: number) => props.focusRows.includes(r)
-const swatch = (k: number | null) => (k === null ? undefined : `var(--c-class-${k % 3})`)
+const swatch = (k: number | null) => (k === null ? undefined : classColor(k))
 </script>
 
 <template>

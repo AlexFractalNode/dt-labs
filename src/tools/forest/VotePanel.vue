@@ -7,6 +7,7 @@
 import { computed } from 'vue'
 import { aggregate } from '../../core/forest'
 import { useI18n } from '../../i18n'
+import { classColor, classGlyph } from '../../ui/classStyle'
 import { fmt } from '../../ui/format'
 
 const props = defineProps<{
@@ -26,7 +27,7 @@ const agg = computed(() => (props.probas && props.probas.length > 0 ? aggregate(
 const treeClass = computed(() => (props.probas ?? []).map((p) => aggregate([p]).hardClass))
 const votes = computed(() => props.classNames.map((_, c) => treeClass.value.filter((k) => k === c).length))
 const disagree = computed(() => agg.value !== null && agg.value.hardClass !== agg.value.meanClass)
-const shape = (c: number) => ['●', '■', '▲'][c % 3]
+const shape = classGlyph
 const unitState = computed(() => (props.probas === null ? (props.state === 'error' ? 'error' : 'loading') : 'ready'))
 
 function onField(i: 0 | 1, e: Event) {
@@ -123,7 +124,7 @@ const cls = (c: number) => props.classNames[c] ?? String(c)
               v-for="(v, c) in p"
               :key="c"
               class="seg"
-              :style="{ width: `${v * 100}%`, background: `var(--c-class-${c % 3})` }"
+              :style="{ width: `${v * 100}%`, background: classColor(c) }"
             />
           </span>
           <span class="vals">{{ p.map((v) => fmt(lang, v, 2)).join(' | ') }}</span>

@@ -23,6 +23,7 @@ import {
 } from '../../core/tree'
 import { useI18n, type MessageKey } from '../../i18n'
 import { useRoute } from '../../router'
+import { classColor, classColors } from '../../ui/classStyle'
 import { fmt, fmtValue } from '../../ui/format'
 import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
@@ -48,7 +49,7 @@ const FRESH_N = 2000
 const FRESH_SEED_OFFSET = 9999
 const CURVE_DEPTHS = Array.from({ length: 20 }, (_, i) => i + 1)
 const MAX_CURVE_ALPHAS = 20
-const CLASS_COLORS = ['var(--c-class-0)', 'var(--c-class-1)', 'var(--c-class-2)']
+const CLASS_COLORS = classColors(6)
 /** Margin added around the eight textbook cases for the region plot. */
 const EIGHT_PAD = 0.5
 
@@ -477,7 +478,7 @@ const modelFailed = computed(() => shown.value === null)
           </div>
           <ul class="legend" :aria-label="t('complexity.plot.classes')">
             <li v-for="(name, c) in data.classNames" :key="c">
-              <span class="swatch" :style="{ background: `var(--c-class-${c % 3})` }" aria-hidden="true" />{{
+              <span class="swatch" :style="{ background: classColor(c) }" aria-hidden="true" />{{
                 t('complexity.plot.class', { name })
               }}
             </li>

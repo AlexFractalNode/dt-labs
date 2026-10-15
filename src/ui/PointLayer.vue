@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { inject, onBeforeUnmount, ref, type ComputedRef } from 'vue'
 import { useI18n } from '../i18n'
+import { classColor, classIndex, classPolygon } from './classStyle'
 import { PLOT_SCALES, type PlotScales } from './plotScales'
 
 const props = withDefaults(
@@ -9,7 +10,7 @@ const props = withDefaults(
     y: ArrayLike<number>
     editable?: boolean
     label?: string
-    /** Class code per point: filled with the class colour and drawn as circle / square / triangle (not colour alone). */
+    /** Class code per point: filled with the class colour and drawn as circle / square / triangle / diamond / inverted triangle / plus (not colour alone). */
     classes?: ArrayLike<number>
   }>(),
   { editable: true },
@@ -21,11 +22,6 @@ const emit = defineEmits<{
 const scales = inject<ComputedRef<PlotScales>>(PLOT_SCALES)!
 const { t } = useI18n()
 const dragging = ref<number | null>(null)
-
-/** Triangle around (cx, cy), same visual weight as the circle of radius 5. */
-function triangle(cx: number, cy: number): string {
-  return `${cx},${cy - 6} ${cx + 5.5},${cy + 4} ${cx - 5.5},${cy + 4}`
-}
 
 const LONG_PRESS_MS = 500
 const MOVE_TOLERANCE_PX = 6
@@ -116,24 +112,24 @@ function onContext(i: number) {
       />
       <template v-if="classes">
         <rect
-          v-if="classes[i] % 3 === 1"
+          v-if="classIndex(classes[i]) === 1"
           class="dot cls"
-          :style="{ fill: `var(--c-class-${classes[i] % 3})` }"
+          :style="{ fill: classColor(classes[i]) }"
           :x="scales.x(xv) - 4.5"
           :y="scales.y(y[i]) - 4.5"
           width="9"
           height="9"
         />
         <polygon
-          v-else-if="classes[i] % 3 === 2"
+          v-else-if="classIndex(classes[i]) >= 2"
           class="dot cls"
-          :style="{ fill: `var(--c-class-${classes[i] % 3})` }"
-          :points="triangle(scales.x(xv), scales.y(y[i]))"
+          :style="{ fill: classColor(classes[i]) }"
+          :points="classPolygon(classes[i], scales.x(xv), scales.y(y[i]))"
         />
         <circle
           v-else
           class="dot cls"
-          :style="{ fill: `var(--c-class-${classes[i] % 3})` }"
+          :style="{ fill: classColor(classes[i]) }"
           :cx="scales.x(xv)"
           :cy="scales.y(y[i])"
           r="5"

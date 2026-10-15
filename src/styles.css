@@ -19,10 +19,14 @@
   /* Plot ink for data points (>= 3:1 on --bg). */
   --c-points: #111827;
 
-  /* Class colours (Okabe-Ito based, colour-blind safe, >= 3:1 on --surface): blue, vermillion, bluish green. */
+  /* Class colours (Okabe-Ito based, colour-blind safe, >= 3:1 on --surface): blue, vermillion, bluish green,
+     reddish purple, dark yellow, slate. Six marker shapes (ui/classStyle.ts) make them distinguishable without colour. */
   --c-class-0: #0072b2;
   --c-class-1: #d55e00;
   --c-class-2: #007a5a;
+  --c-class-3: #b0407f;
+  --c-class-4: #8c7300;
+  --c-class-5: #5f6b7a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -44,6 +48,9 @@
     --c-class-0: #56b4e9;
     --c-class-1: #f0a030;
     --c-class-2: #3ccb9f;
+    --c-class-3: #e08ac0;
+    --c-class-4: #e6d34a;
+    --c-class-5: #a9b4c3;
   }
 }
 

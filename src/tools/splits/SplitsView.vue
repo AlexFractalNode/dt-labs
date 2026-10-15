@@ -16,6 +16,7 @@ import { useI18n, type MessageKey } from '../../i18n'
 import { useRoute } from '../../router'
 import BarList from '../../ui/BarList.vue'
 import Formula from '../../ui/Formula.vue'
+import { classColor } from '../../ui/classStyle'
 import RefBadge from '../../ui/RefBadge.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
@@ -470,7 +471,7 @@ const formatShare = (v: number) => fmt(lang.value, v, 3)
         <TreeDiagram :nodes="diagramNodes" :focus="focusId" :path="pathIds" @select="onSelect" />
         <ul v-if="ds" class="legend" :aria-label="t('splits.tree.classes')">
           <li v-for="(name, k) in ds.classNames" :key="k">
-            <span class="swatch" :style="{ background: `var(--c-class-${k % 3})` }" aria-hidden="true" />{{ name }}
+            <span class="swatch" :style="{ background: classColor(k) }" aria-hidden="true" />{{ name }}
           </li>
         </ul>
       </section>

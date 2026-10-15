@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from '../i18n'
+import { classColors } from './classStyle'
 import { layoutTree, type DiagramNode } from './treeLayout'
 
 /**
@@ -21,7 +22,7 @@ const props = withDefaults(
     focus: null,
     path: () => [],
     collapseDepth: 6,
-    colors: () => ['var(--c-class-0, #2b5c9e)', 'var(--c-class-1, #b4530a)', 'var(--c-class-2, #3d7a4a)'],
+    colors: () => classColors(6),
   },
 )
 const emit = defineEmits<{ select: [id: number] }>()

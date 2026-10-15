@@ -7,6 +7,7 @@ import { computed } from 'vue'
 import type { ClassDataset } from '../../core/dataset'
 import type { ManualNode } from '../../core/manual'
 import { useI18n } from '../../i18n'
+import { classColor } from '../../ui/classStyle'
 import { majority } from './format'
 
 const props = defineProps<{
@@ -72,20 +73,24 @@ const pct = (v: number) => new Intl.NumberFormat(lang.value, { style: 'percent',
         />
       </label>
     </div>
-    <p v-if="state === 'empty'" class="msg" role="status">
+    <!-- Announces only the predicted class, and only when it changes (the text node is patched only on change). -->
+    <p class="sr-only" aria-live="polite" aria-atomic="true">
+      {{ state === 'ready' ? `${t('splits.trace.predicted')}: ${predicted}` : '' }}
+    </p>
+    <p v-if="state === 'empty'" class="msg">
       {{ ds ? t('splits.trace.invalid') : t('status.empty') }}
     </p>
-    <div v-else class="result" role="status">
+    <div v-else class="result">
       <p class="pred">
         {{ t('splits.trace.predicted') }}: <strong>{{ predicted }}</strong>
         <span class="muted">· {{ t('splits.trace.length', { n: visited?.length ?? 0 }) }}</span>
       </p>
       <ul class="shares" :aria-label="t('splits.trace.shares')">
         <li v-for="s in shares" :key="s.k">
-          <span class="swatch" :style="{ background: `var(--c-class-${s.k % 3})` }" aria-hidden="true" />
+          <span class="swatch" :style="{ background: classColor(s.k) }" aria-hidden="true" />
           <span class="name">{{ s.name }}</span>
           <span class="track" aria-hidden="true"
-            ><span class="fill" :style="{ width: `${s.share * 100}%`, background: `var(--c-class-${s.k % 3})` }"
+            ><span class="fill" :style="{ width: `${s.share * 100}%`, background: classColor(s.k) }"
           /></span>
           <span class="val">{{ s.count }} ({{ pct(s.share) }})</span>
         </li>

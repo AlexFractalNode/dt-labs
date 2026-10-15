@@ -13,6 +13,7 @@ import { generate, type Bounds } from '../../core/generators'
 import { DEFAULT_TREE_PARAMS } from '../../core/tree'
 import { useI18n } from '../../i18n'
 import { useRoute } from '../../router'
+import { classColor } from '../../ui/classStyle'
 import GridLayer from '../../ui/GridLayer.vue'
 import PlotFrame from '../../ui/PlotFrame.vue'
 import PointLayer from '../../ui/PointLayer.vue'
@@ -350,7 +351,7 @@ const measureKey = computed(() => `${forestKey.value}|${xStar.value[0]}|${xStar.
           </div>
           <ul class="legend" :aria-label="t('forest.plot.classes')">
             <li v-for="(name, c) in CLASS_NAMES" :key="c">
-              <span class="swatch" :style="{ background: `var(--c-class-${c})` }" aria-hidden="true" />{{
+              <span class="swatch" :style="{ background: classColor(c) }" aria-hidden="true" />{{
                 t('forest.plot.class', { name })
               }}
               <span aria-hidden="true">{{ ['●', '■'][c] }}</span>
