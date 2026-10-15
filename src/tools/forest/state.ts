@@ -61,3 +61,13 @@ export function toForestQuery(state: ForestState): Query {
   if (state.leaf !== d.leaf) out.leaf = formatNumber(state.leaf)
   return out
 }
+
+/** Numbers of trees at which the OOB accuracy is evaluated. */
+const OOB_STEP_CANDIDATES = [1, 2, 5, 10, 20, 50, 100, 200, 300]
+
+/** The OOB steps up to `B`, with `B` itself as the last one. */
+export function oobSteps(B: number): number[] {
+  const steps = OOB_STEP_CANDIDATES.filter((s) => s <= B)
+  if (steps[steps.length - 1] !== B) steps.push(B)
+  return steps
+}
