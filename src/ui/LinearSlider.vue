@@ -25,7 +25,16 @@ function onInput(e: Event) {
       <label :for="id" class="label">{{ label }}</label>
       <output :for="id" class="value">{{ format ? format(modelValue) : modelValue }}</output>
     </div>
-    <input :id="id" type="range" :min="min" :max="max" :step="step" :value="modelValue" @input="onInput" />
+    <input
+      :id="id"
+      type="range"
+      :min="min"
+      :max="max"
+      :step="step"
+      :value="modelValue"
+      :aria-valuetext="format ? format(modelValue) : String(modelValue)"
+      @input="onInput"
+    />
   </div>
 </template>
 
