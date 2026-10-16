@@ -35,3 +35,16 @@ export function urlProblems(state: {
 }): MessageKey[] {
   return state.unknownRoute ? ['notice.invalidUrl'] : []
 }
+
+/** Whether two hashes name the same address: same route and the same parameters, in any order. */
+export function sameHash(a: string, b: string): boolean {
+  const pa = parseHash(a)
+  const pb = parseHash(b)
+  if (pa.route !== pb.route || pa.unknownRoute !== pb.unknownRoute) return false
+  const key = (p: URLSearchParams) =>
+    [...p.entries()]
+      .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+      .sort()
+      .join('&')
+  return key(pa.params) === key(pb.params)
+}

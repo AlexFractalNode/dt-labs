@@ -20,12 +20,44 @@ test('home lists three tools', async ({ page }) => {
   const cards = page.locator(`${home} [data-tool]`)
   await expect(cards).toHaveCount(3)
   for (const route of ['splits', 'complexity', 'forest']) {
-    await expect(page.locator(`${home} [data-tool="${route}"] a[href^="#/${route}"]`)).toHaveCount(1)
+    await expect(page.locator(`${home} [data-tool="${route}"] [data-open-link]`)).toHaveCount(1)
+    await expect(page.locator(`${home} [data-tool="${route}"] [data-open-link]`)).toHaveAttribute(
+      'href',
+      new RegExp(`^#/${route}`),
+    )
+    await expect(page.locator(`${home} [data-tool="${route}"] [data-scenario-link]`)).toHaveCount(3)
   }
   await expect(page.locator(`${home} [data-tool="splits"]`)).toContainText('Notebook Zelle 99–128')
 
-  await page.locator(`${home} [data-tool="forest"] a[href="#/forest"]`).click()
+  await page.locator(`${home} [data-tool="forest"] [data-open-link]`).click()
   await expect(page.locator('[data-verify-unit="app-shell"]')).toHaveAttribute('data-verify-route', 'forest')
+  expect(errors).toEqual([])
+})
+
+test('the roadmap lists seven ideas that are not part of this version', async ({ page }) => {
+  const errors = trackErrors(page)
+  await page.goto('/#/?lang=de')
+  const roadmap = page.locator('[data-verify-unit="home-roadmap"]')
+  await expect(roadmap).toHaveAttribute('data-verify-state', 'ready', { timeout: 10_000 })
+  await expect(roadmap).toHaveAttribute('data-verify-count', '7')
+  await expect(roadmap.locator('li')).toHaveCount(7)
+  await expect(roadmap).toContainText('Regressions-Treppe')
+  await expect(roadmap).toContainText('Kap. 14')
+  await expect(roadmap).toContainText('alle Kapitel')
+  expect(errors).toEqual([])
+})
+
+test('a scenario link on the home page opens the tool with the scenario applied', async ({ page }) => {
+  const errors = trackErrors(page)
+  await page.goto('/#/?lang=de')
+  await expect(page.locator(home)).toHaveAttribute('data-verify-state', 'ready', { timeout: 10_000 })
+  await page.locator(`${home} [data-tool="complexity"] [data-scenario-link="c3"]`).click()
+  await expect(page.locator('[data-verify-unit="app-shell"]')).toHaveAttribute('data-verify-route', 'complexity')
+  await expect(page.locator('[data-verify-unit="pruning-path"]')).toHaveAttribute('data-verify-selected', '2', {
+    timeout: 10_000,
+  })
+  await expect(page.locator('[data-verify-unit="scenario-note"]')).toHaveAttribute('data-verify-state', 'ready')
+  await expect(page).toHaveURL(/scenario=c3/)
   expect(errors).toEqual([])
 })
 

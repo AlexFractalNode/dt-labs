@@ -18,9 +18,13 @@ import BarList from '../../ui/BarList.vue'
 import Formula from '../../ui/Formula.vue'
 import { classColor } from '../../ui/classStyle'
 import RefBadge from '../../ui/RefBadge.vue'
+import { TOOL_REFS } from '../toolRefs'
+import ScenarioArea from '../../ui/ScenarioArea.vue'
 import TreeDiagram from '../../ui/TreeDiagram.vue'
 import UrlNotice from '../../ui/UrlNotice.vue'
 import type { DiagramNode } from '../../ui/treeLayout'
+import { writeToolQuery } from '../scenarioUrl'
+import { useScenario } from '../useScenario'
 import CandidateTable from './CandidateTable.vue'
 import DataTable from './DataTable.vue'
 import { fmt, majority, parseTyped, questionText } from './format'
@@ -310,21 +314,13 @@ const query = computed<Record<string, string>>(() => {
   const isAuto = d !== null && Object.keys(choices.value).length > 0 && sameChoices(choices.value, autoChoices(d, crit))
   return toSplitsQuery({ preset: presetId.value, criterion: crit, grow: isAuto ? 'auto' : 'none' })
 })
-watch(query, (q) => {
-  if (typeof window === 'undefined') return
-  try {
-    // replaceState: no hashchange, no history entry; keeps the `lang` parameter of the live address
-    const live = new URLSearchParams(window.location.hash.split('?')[1] ?? '')
-    const next = new URLSearchParams()
-    for (const k of ['preset', 'criterion', 'grow']) if (k in q) next.set(k, q[k])
-    const l = live.get('lang')
-    if (l) next.set('lang', l)
-    const qs = next.toString()
-    history.replaceState(history.state, '', `#/splits${qs ? `?${qs}` : ''}`)
-  } catch {
-    /* history unavailable: the view still works */
-  }
-})
+// replaceState: no hashchange, no history entry; keeps `lang` and a valid `scenario` of the live address
+watch(query, (q) => writeToolQuery('splits', q))
+
+// ---- scenarios -----------------------------------------------------------------------------------------------------
+// The split workshop has no start action.
+const scenario = useScenario('splits', () => query.value, {})
+const noticeProblems = computed(() => [...new Set([...urlProblems.value, ...scenario.problems.value])])
 
 // ---- labels --------------------------------------------------------------------------------------------------------
 const sourceLabel = computed(() => {
@@ -352,12 +348,14 @@ const formatShare = (v: number) => fmt(lang.value, v, 3)
     <header class="head">
       <div class="head-top">
         <h2 class="title">{{ t('nav.splits') }}</h2>
-        <RefBadge chapter="5.2–5.6" code="99–128" />
+        <RefBadge :chapter="TOOL_REFS.splits.chapter" :code="TOOL_REFS.splits.code" />
       </div>
       <p class="lead">{{ t('splits.lead') }}</p>
     </header>
 
-    <UrlNotice :problems="urlProblems" />
+    <UrlNotice :problems="noticeProblems" />
+
+    <ScenarioArea tool="splits" :scenario="scenario" />
 
     <div class="controls">
       <fieldset class="group">

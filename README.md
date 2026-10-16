@@ -31,6 +31,21 @@ Further parameters:
   `depth`, `split`, `leaf`, `mid`, `alpha`, `curve`.
 - `#/forest`: `preset`, `n`, `noise`, `seed`, `B`, `mf` (1 or 2), `bootstrap`, `depth`, `leaf`.
 
+## Scenarios and help
+
+Each tool offers three ready-made scenarios: complete tool states with a short explanation of what to look at. They are
+shown above the controls of a tool and linked from the cards on the home page. A scenario is part of the address, so it
+can be shared like any other setup, e.g. `#/complexity?seed=2&scenario=c1`. The scenario ids are `s1`–`s3` (Split
+Workshop), `c1`–`c3` (Complexity Lab) and `f1`–`f3` (Forest Lab). An unknown id, or one that belongs to another tool,
+is ignored and reported in the notice about the address. Changing a setting marks the scenario as modified and offers
+to restore it.
+
+Every tool also has a help drawer (button "Hilfe" / "Help" in the tool header): a short explanation of the controls and
+plots, and how they relate to the textbook chapter. The language follows the toggle or `?lang=`.
+
+The home page also lists a short roadmap of ideas for further tools on the same computing core (see below); they are
+not part of this version.
+
 ## Local development
 
 Requirements: Node 24 and npm. For the Python checks: [uv](https://docs.astral.sh/uv/) (it fetches Python 3.10 itself).
@@ -110,7 +125,10 @@ you compare numbers with the notebook:
 - **Misclassification error.** Offered in the Split Workshop for teaching only; sklearn has no such criterion, so it
   has no golden counterpart.
 
-Regression trees, an information calculator and other items are deliberately not part of v1.
+Not part of this version, listed as ideas on the home page: a regression-tree tool (ch. 14), an information
+calculator (entropy, cross-entropy, KL; ch. 1–2, 4), an exercise trainer with randomised variants, a leakage lab with
+the Titanic data (ch. 6–8), an Adult explorer (ch. 7), IFrame embedding in the DS hub, and integration into the
+learning website.
 
 ## Deployment (GitHub Pages)
 
